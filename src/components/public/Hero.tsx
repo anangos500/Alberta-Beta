@@ -61,16 +61,14 @@ export const Hero: React.FC = () => {
   return (
     <section
       id="home"
-      className="relative h-[85vh] sm:h-[85vh] min-h-[550px] sm:min-h-[600px] flex items-center overflow-hidden bg-black"
+      className="relative h-[85vh] min-h-[550px] sm:min-h-[650px] flex items-center overflow-hidden bg-black"
     >
-      {/* Background */}
+      {/* ================= BACKGROUND ================= */}
       {displaySlides.map((slide: any, index: number) => (
         <div
           key={index}
           className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentSlide
-              ? "opacity-100 z-10"
-              : "opacity-0 z-0"
+            index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
           {slide.image ? (
@@ -87,62 +85,74 @@ export const Hero: React.FC = () => {
         </div>
       ))}
 
-      {/* Content */}
-      <div className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      {/* ================= CONTENT ================= */}
+      <div className="relative z-20 w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Tinggi area konten */}
-        <div className="max-w-2xl h-[430px] sm:h-[460px] flex flex-col justify-between">
+          <div className="max-w-2xl flex flex-col gap-8 lg:gap-10">
 
-          {/* ================= TEXT ================= */}
-          <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-6">
-              {activeSlide?.title
-                ?.split("Alberta")
-                .map((part: string, i: number, arr: string[]) => (
-                  <React.Fragment key={i}>
-                    {part}
-                    {i !== arr.length - 1 && (
-                      <span className="text-white">Alberta</span>
-                    )}
-                  </React.Fragment>
-                ))}
-            </h1>
+            {/* ================= TEXT ================= */}
 
-            <p className="text-base sm:text-lg text-gray-300 leading-relaxed max-w-xl">
-              {activeSlide?.description}
-            </p>
-          </div>
+            <div>
 
-          {/* ================= BUTTON ================= */}
-          <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-6">
+                {activeSlide?.title
+                  ?.split("Alberta")
+                  .map((part: string, i: number, arr: string[]) => (
+                    <React.Fragment key={i}>
+                      {part}
+                      {i !== arr.length - 1 && (
+                        <span className="text-white">Alberta</span>
+                      )}
+                    </React.Fragment>
+                  ))}
+              </h1>
 
-            {/* Desktop */}
-            <button
-              onClick={() => handleCtaClick(activeSlide?.primary)}
-              className="hidden sm:inline-flex items-center justify-center bg-white text-black px-8 py-3.5 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
-            >
-              {activeSlide?.buttonText || "Daftar Sekarang"}
-            </button>
+              <p className="text-base sm:text-lg text-gray-300 leading-relaxed max-w-xl">
+                {activeSlide?.description}
+              </p>
 
-            {/* Mobile */}
-            <div className="sm:hidden flex gap-3">
-              <button
-                onClick={() => setIsRegisterModalOpen(true)}
-                className="flex-1 bg-white text-black py-3 rounded-full font-semibold"
-              >
-                Daftar Sekarang
-              </button>
-
-              <button
-                onClick={() => navigate("/login")}
-                className="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 text-white py-3 rounded-full font-semibold"
-              >
-                Masuk
-              </button>
             </div>
 
-            {/* Indicator */}
-            <div className="mt-8 flex gap-2">
+            {/* ================= BUTTON ================= */}
+
+            <div>
+
+              {/* Desktop */}
+
+              <button
+                onClick={() => handleCtaClick(activeSlide?.primary)}
+                className="hidden sm:inline-flex items-center justify-center bg-white text-black px-8 py-3.5 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+              >
+                {activeSlide?.buttonText || "Daftar Sekarang"}
+              </button>
+
+              {/* Mobile */}
+
+              <div className="sm:hidden flex gap-3">
+
+                <button
+                  onClick={() => setIsRegisterModalOpen(true)}
+                  className="flex-1 bg-white text-black py-3 rounded-full font-semibold"
+                >
+                  Daftar Sekarang
+                </button>
+
+                <button
+                  onClick={() => navigate("/login")}
+                  className="flex-1 bg-white/10 border border-white/20 backdrop-blur-sm text-white py-3 rounded-full font-semibold"
+                >
+                  Masuk
+                </button>
+
+              </div>
+
+            </div>
+
+            {/* ================= INDICATOR ================= */}
+
+            <div className="flex gap-2">
+
               {displaySlides.map((_: any, index: number) => (
                 <button
                   key={index}
@@ -155,10 +165,11 @@ export const Hero: React.FC = () => {
                   aria-label={`Go to slide ${index + 1}`}
                 >
                   {index === currentSlide && (
-                    <div className="absolute inset-y-0 left-0 bg-white animate-progress" />
+                    <div className="absolute top-0 left-0 h-full bg-white animate-progress w-full" />
                   )}
                 </button>
               ))}
+
             </div>
 
           </div>
