@@ -23,7 +23,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-sm w-full">
-      <div className="w-full mx-auto px-3 sm:px-6 lg:px-8 xl:px-12">
+      <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex items-center justify-between h-14 sm:h-20">
           
           {/* Logo Alberta */}
