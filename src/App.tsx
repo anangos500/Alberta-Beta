@@ -77,7 +77,7 @@ const PortalLayout: React.FC = () => {
   return (
     <div className="h-[100dvh] bg-slate-50 font-sans text-slate-900 flex flex-col pb-[calc(env(safe-area-inset-bottom)+70px)] lg:pb-0 overflow-hidden">
       <PortalMobileHeader />
-      <div className="flex-1 flex max-w-[1400px] w-full mx-auto min-h-0">
+      <div className="flex-1 flex max-w-[1280px] w-full mx-auto min-h-0">
         <PortalSidebar />
         <main className={`flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto ${
             currentUser.role === 'admin' ? 'scrollbar-admin' :
