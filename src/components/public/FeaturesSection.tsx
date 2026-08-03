@@ -7,25 +7,25 @@ export const FeaturesSection: React.FC = () => {
   const featuresImages = publicContent?.features_images || ["", "", "", ""];
   const features = [
     {
-      icon: <Award className="w-5 h-5 text-purple-600" />,
+      icon: <Award className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />,
       title: "Laporan Perkembangan Mingguan",
       desc: "7 Poin penilaian mendalam dapat diakses kapan saja oleh Orang Tua via Portal Albertian.",
       bg: "bg-purple-100"
     },
     {
-      icon: <Heart className="w-5 h-5 text-pink-600" />,
+      icon: <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />,
       title: "Tentor Ramah & Berpengalaman",
       desc: "Pengajar sabar, menguasai metode pembelajaran ramah anak SD dan komunikatif untuk remaja SMP.",
       bg: "bg-pink-100"
     },
     {
-      icon: <CheckCircle className="w-5 h-5 text-purple-600" />,
+      icon: <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />,
       title: "Kelompok Belajar Eksklusif",
       desc: "Maksimal 5-6 Siswa agar tentor dapat memberikan perhatian personal dan mendampingi PR secara optimal.",
       bg: "bg-purple-100"
     },
     {
-      icon: <MapPin className="w-5 h-5 text-pink-600" />,
+      icon: <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />,
       title: "Fasilitas Nyaman di Pusat Kota",
       desc: "Ruang kelas ber-AC, papan tulis interaktif, meja belajar ergonomic, serta lingkungan aman.",
       bg: "bg-pink-100"
@@ -33,8 +33,8 @@ export const FeaturesSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 lg:py-24 bg-white relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-12 lg:py-16 bg-white relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           
           {/* Left Column: Image Collage */}
@@ -70,7 +70,7 @@ export const FeaturesSection: React.FC = () => {
           {/* Right Column: Text & Features */}
           <div className="space-y-10">
             <div>
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+              <h2 className="text-2xl sm:text-4xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
                 Keunggulan Dari <span className="text-purple-600">Bimbel Alberta</span>
               </h2>
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-lg text-justify hyphens-auto">
@@ -81,13 +81,17 @@ export const FeaturesSection: React.FC = () => {
             <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-8">
               {features.map((feature, idx) => (
                 <div key={idx} className="flex flex-col lg:flex-row gap-2.5 sm:gap-3 lg:gap-6 group items-start text-left bg-slate-50 lg:bg-transparent p-3 sm:p-4 lg:p-0 rounded-2xl lg:rounded-none border border-slate-100 lg:border-none h-full">
-                  <div className="shrink-0">
-                    <div className={`w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center ${feature.bg} transition-transform group-hover:scale-110`}>
+                  <div className="flex items-center gap-2.5 w-full lg:w-auto shrink-0">
+                    <div className={`hidden sm:flex w-7 h-7 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full shrink-0 items-center justify-center ${feature.bg} transition-transform group-hover:scale-110`}>
                       {feature.icon}
                     </div>
+                    <h3 className="text-[13px] sm:text-sm lg:hidden font-bold text-slate-900 leading-snug flex items-start gap-1">
+                      <span className="shrink-0">{idx + 1}.</span>
+                      <span>{feature.title}</span>
+                    </h3>
                   </div>
                   <div className="flex flex-col justify-start">
-                    <h3 className="text-[13px] sm:text-sm lg:text-xl font-bold text-slate-900 mb-1 lg:mb-2 leading-snug">{feature.title}</h3>
+                    <h3 className="hidden lg:block text-xl font-bold text-slate-900 mb-1 lg:mb-2 leading-snug">{feature.title}</h3>
                     <p className="text-[11px] sm:text-xs lg:text-base text-slate-600 leading-relaxed text-left lg:text-justify hyphens-auto">
                       {feature.desc}
                     </p>
