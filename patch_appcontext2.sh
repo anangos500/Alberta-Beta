@@ -1,0 +1,2 @@
+sed -i -e 's/supabase.from('\''students'\'').select('\''\*'\''),/supabase.from("students").select("*"),\n          supabase.from("parent_students").select("*"),/' src/context/AppContext.tsx
+sed -i -e 's/const \[studentsRes, tentorsRes, parentsRes, reportsRes, jadwalRes, notifRes\] = await Promise.all(\[/const [studentsRes, parentStudentsRes, tentorsRes, parentsRes, reportsRes, jadwalRes, notifRes] = await Promise.all([/' src/context/AppContext.tsx

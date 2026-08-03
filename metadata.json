@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix Bimbel Alberta Bondowoso V.1",
+  "description": "Website Resmi \u0026 Portal Belajar Bimbel Alberta Bondowoso untuk Jenjang SD dan SMP",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
