@@ -25,6 +25,7 @@ export const OrangTuaDashboard: React.FC = () => {
 
   const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null);
   const [readNotifications, setReadNotifications] = useState<string[]>([]);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (currentUser?.id) {
@@ -91,7 +92,7 @@ export const OrangTuaDashboard: React.FC = () => {
       {portalTab === 'dashboard' && (
       <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-4 sm:p-6 lg:p-8 border border-emerald-100/50 space-y-5 shadow-sm">
         
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-100 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-100 pb-5">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-emerald-600 text-[10px] font-extrabold border border-emerald-100 uppercase tracking-wider shadow-sm">
               <Heart className="w-3.5 h-3.5 text-emerald-500" />
@@ -107,7 +108,7 @@ export const OrangTuaDashboard: React.FC = () => {
 
           {/* MULTI-CHILD SELECTOR DROPDOWN */}
           {myChildren.length > 1 && (
-            <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1.5 shrink-0 w-full md:w-auto md:min-w-[240px]">
+            <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1.5 shrink-0 w-full sm:w-auto sm:min-w-[240px]">
               <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
                 Pilih Ananda:
               </label>
@@ -115,7 +116,7 @@ export const OrangTuaDashboard: React.FC = () => {
                 <select
                   value={selectedChildId}
                   onChange={(e) => setSelectedChildId(e.target.value)}
-                  className="w-full pl-3 pr-8 py-2.5 md:py-2 rounded-xl bg-slate-50 text-slate-900 font-bold text-xs border border-slate-200 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 appearance-none cursor-pointer transition-colors"
+                  className="w-full pl-3 pr-8 py-2.5 sm:py-2 rounded-xl bg-slate-50 text-slate-900 font-bold text-xs border border-slate-200 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 appearance-none cursor-pointer transition-colors"
                 >
                   {myChildren.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -133,7 +134,7 @@ export const OrangTuaDashboard: React.FC = () => {
         {activeChild && (
           <div className="bg-white rounded-2xl border border-white shadow-sm ring-1 ring-slate-100 overflow-hidden">
             {/* Mobile Compact Profile View (Accordion) */}
-            <details className="group md:hidden">
+            <details className="group sm:hidden">
               <summary className="flex items-center justify-between p-4 cursor-pointer list-none bg-white hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden ring-2 ring-emerald-50 shrink-0">
@@ -169,15 +170,15 @@ export const OrangTuaDashboard: React.FC = () => {
             </details>
 
             {/* Desktop View */}
-            <div className="hidden md:flex flex-col md:flex-row items-center justify-between gap-5 md:gap-4 p-5">
-              <div className="flex flex-col md:flex-row items-center text-center md:text-left gap-4 w-full md:w-auto">
-                <div className="w-20 h-20 md:w-16 md:h-16 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden ring-4 ring-emerald-50 shrink-0 mx-auto md:mx-0">
-                  <svg className="w-12 h-12 md:w-10 md:h-10 text-slate-300 mt-2" fill="currentColor" viewBox="0 0 24 24">
+            <div className="hidden sm:flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-4 p-5">
+              <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 w-full sm:w-auto">
+                <div className="w-20 h-20 sm:w-16 sm:h-16 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden ring-4 ring-emerald-50 shrink-0 mx-auto sm:mx-0">
+                  <svg className="w-12 h-12 sm:w-10 sm:h-10 text-slate-300 mt-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                   </svg>
                 </div>
-                <div className="space-y-1.5 md:space-y-1 w-full">
-                  <div className="flex flex-col md:flex-row flex-wrap items-center md:justify-start justify-center gap-2 mb-1">
+                <div className="space-y-1.5 sm:space-y-1 w-full">
+                  <div className="flex flex-col sm:flex-row flex-wrap items-center sm:justify-start justify-center gap-2 mb-1">
                     <h3 className="text-xl font-extrabold text-slate-900 tracking-tight leading-tight">{activeChild.nama}</h3>
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-700 border border-emerald-200">
                       {activeChild.jenjang} Kelas {activeChild.kelas}
@@ -186,18 +187,17 @@ export const OrangTuaDashboard: React.FC = () => {
                   <p className="text-xs text-slate-500 font-medium">
                     NIS: <span className="font-mono text-slate-600">{activeChild.nis}</span> • {activeChild.sekolah}
                   </p>
-                  <p className="text-[11px] font-bold text-slate-700 mt-1 flex items-center justify-center md:justify-start gap-1">
+                  <p className="text-[11px] font-bold text-slate-700 mt-1 flex items-center justify-center sm:justify-start gap-1">
                     <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
                     Tentor: {activeChild.tentorNama}
                   </p>
                 </div>
               </div>
-
               <a
                 href={`https://wa.me/6281234567890?text=Halo%20Admin%20Alberta,%20saya%20orang%20tua%20dari%20${encodeURIComponent(activeChild.nama)}%20ingin%20bertanya.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full md:w-auto px-5 py-3.5 md:py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shrink-0"
+                className="w-full sm:w-auto px-5 py-3.5 sm:py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shrink-0"
               >
                 <MessageSquare className="w-4 h-4" />
                 <span>Hubungi Tentor (WA)</span>
@@ -259,7 +259,7 @@ export const OrangTuaDashboard: React.FC = () => {
       {/* WEEKLY REPORTS LIST */}
       {portalTab === 'laporan' && (
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
             <div>
               <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
                 Laporan Mingguan
@@ -273,12 +273,12 @@ export const OrangTuaDashboard: React.FC = () => {
             
             {/* MULTI-CHILD SELECTOR DROPDOWN */}
             {myChildren.length > 1 && (
-              <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 shrink-0 w-full md:w-auto md:min-w-[200px]">
+              <div className="bg-slate-50 p-2 rounded-xl border border-slate-200 shrink-0 w-full sm:w-auto sm:min-w-[200px]">
                 <div className="relative">
                   <select
                     value={selectedChildId}
                     onChange={(e) => setSelectedChildId(e.target.value)}
-                    className="w-full pl-3 pr-8 py-2.5 md:py-2 rounded-lg bg-white text-slate-900 font-bold text-xs border border-slate-200 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 appearance-none cursor-pointer transition-colors"
+                    className="w-full pl-3 pr-8 py-2.5 sm:py-2 rounded-lg bg-white text-slate-900 font-bold text-xs border border-slate-200 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 appearance-none cursor-pointer transition-colors"
                   >
                     {myChildren.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -410,13 +410,18 @@ export const OrangTuaDashboard: React.FC = () => {
                       <Image className="w-4 h-4 text-slate-400" />
                       Foto Kegiatan
                     </span>
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2 sm:gap-3 flex-wrap">
                       {report.dokumentasiFoto.map((img, i) => (
                         <img
                           key={i}
                           src={img || undefined}
                           alt="Dokumentasi"
-                          className="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-sm"
+                          className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:opacity-80 hover:shadow-md transition-all"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (img) setPreviewImage(img);
+                          }}
                         />
                       ))}
                     </div>
@@ -443,7 +448,7 @@ export const OrangTuaDashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 text-sm">
             
             <div className="p-6 rounded-3xl bg-emerald-50/50 border border-emerald-100 space-y-3">
               <span className="text-[10px] font-extrabold text-emerald-500 uppercase tracking-wider">Pemahaman Konsep:</span>
@@ -538,6 +543,31 @@ export const OrangTuaDashboard: React.FC = () => {
           report={selectedReport}
           onClose={() => setSelectedReport(null)}
         />
+      )}
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-slate-900/95 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 lg:top-8 lg:right-8 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-all z-10 cursor-pointer shadow-lg backdrop-blur-md"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img 
+              src={previewImage} 
+              alt="Preview Dokumentasi" 
+              className="max-w-full max-h-[85vh] md:max-h-[90vh] object-contain rounded-xl shadow-2xl ring-1 ring-white/20 select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
       )}
 
     </div>
