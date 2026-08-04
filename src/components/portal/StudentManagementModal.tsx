@@ -31,7 +31,7 @@ export const StudentManagementModal: React.FC<Props> = ({
   const [parentPassword, setParentPassword] = useState('');
   
   const [tentorId, setTentorId] = useState('');
-  const [status, setStatus] = useState<'aktif' | 'nonaktif'>('aktif');
+  const [status, setStatus] = useState<'aktif' | 'cuti'>('aktif');
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export const StudentManagementModal: React.FC<Props> = ({
       setSekolah('');
       setNamaOrangTua('');
       setNoHpOrangTua('');
-      setTentorId(tentors[0]?.id || 'T101');
+      setTentorId(tentors[0]?.id || '');
       setStatus('aktif');
     }
   }, [editingStudent, isOpen]);
@@ -71,8 +71,8 @@ export const StudentManagementModal: React.FC<Props> = ({
         sekolah,
         namaOrangTua,
         noHpOrangTua,
-        tentorId: tentorId || 'T101',
-        tentorNama: selectedTentor?.nama || 'Kak Alberta Fitriani, S.Pd.',
+        tentorId: tentorId || null,
+        tentorNama: selectedTentor?.nama || null,
         status
       });
     } else {
@@ -84,8 +84,8 @@ export const StudentManagementModal: React.FC<Props> = ({
         namaOrangTua,
         noHpOrangTua,
         parentId: selectedParentId,
-        tentorId: tentorId || 'T101',
-        tentorNama: selectedTentor?.nama || 'Kak Alberta Fitriani, S.Pd.',
+        tentorId: tentorId || null,
+        tentorNama: selectedTentor?.nama || null,
         status: 'aktif',
         foto: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`,
         
@@ -407,11 +407,11 @@ export const StudentManagementModal: React.FC<Props> = ({
               </label>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as 'aktif' | 'nonaktif')}
+                onChange={(e) => setStatus(e.target.value as 'aktif' | 'cuti')}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white font-bold"
               >
                 <option value="aktif">Aktif (Siswa Aktif Bimbel)</option>
-                <option value="nonaktif">Nonaktif / Alumni (Soft Delete - Riwayat Tetap Tersimpan)</option>
+                <option value="cuti">Nonaktif / Alumni (Soft Delete - Riwayat Tetap Tersimpan)</option>
               </select>
               <p className="text-[11px] text-stone-500 mt-1 italic">
                 Fitur Soft Delete: Siswa nonaktif tidak terhapus permanen agar riwayat belajar tetap tersimpan rapi.

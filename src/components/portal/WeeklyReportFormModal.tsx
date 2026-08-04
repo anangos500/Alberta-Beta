@@ -198,7 +198,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       studentNama: currentStudent.nama,
       studentJenjang: currentStudent.jenjang,
       studentKelas: currentStudent.kelas,
-      tentorId: currentUser?.id || 'T101',
+      tentorId: currentUser?.id || '',
       tentorNama: currentUser?.nama || 'Kak Alberta Fitriani, S.Pd.',
       mingguKe: Number(mingguKe),
       tanggalPembelajaran: tanggal,
