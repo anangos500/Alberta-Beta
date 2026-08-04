@@ -26,6 +26,7 @@ export const TentorDashboard: React.FC = () => {
 
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedStudentForReport, setSelectedStudentForReport] = useState<Student | null>(null);
+  const [selectedWeekForReport, setSelectedWeekForReport] = useState<number | undefined>(undefined);
   const [editingReport, setEditingReport] = useState<WeeklyReport | null>(null);
 
   const [viewDetailReport, setViewDetailReport] = useState<WeeklyReport | null>(null);
@@ -43,7 +44,7 @@ export const TentorDashboard: React.FC = () => {
     (r) => r.tentorId === currentUser?.tentorId || true
   );
 
-  const currentWeek = 4; // Mock minggu sekarang
+  const currentWeek = Math.ceil(new Date().getDate() / 7); // Calculate current week of the month
   const studentsWithoutReport = myStudents.filter(s => 
     !myReports.find(r => r.studentId === s.id && r.mingguKe === currentWeek)
   ).length;
@@ -54,8 +55,9 @@ export const TentorDashboard: React.FC = () => {
   const myJadwal = jadwalList.filter(j => j.tentorId === currentUser?.id);
   const myJadwalToday = myJadwal.filter(j => j.hari.toLowerCase() === today.toLowerCase());
 
-  const handleOpenNewReport = (student: Student) => {
+  const handleOpenNewReport = (student: Student, week?: number) => {
     setSelectedStudentForReport(student);
+    setSelectedWeekForReport(week);
     setEditingReport(null);
     setIsReportModalOpen(true);
   };
@@ -90,12 +92,11 @@ export const TentorDashboard: React.FC = () => {
               Isi & perbarui Laporan Perkembangan Belajar Mingguan (7 Aspek Penilaian) untuk siswa bimbingan Anda secara praktis dan transparan.
             </p>
           </div>
-
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             {myTentorProfile && (
               <button
                 onClick={() => setIsEditProfileOpen(true)}
-                className="px-6 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 font-extrabold text-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-sm hover:shadow-md w-full md:w-auto"
+                className="px-6 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 font-extrabold text-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-sm hover:shadow-md w-full lg:w-auto"
               >
                 <Edit3 className="w-4 h-4" />
                 <span>Edit Profil</span>
@@ -107,7 +108,7 @@ export const TentorDashboard: React.FC = () => {
                 setEditingReport(null);
                 setIsReportModalOpen(true);
               }}
-              className="px-6 py-3.5 rounded-2xl bg-pink-600 text-white font-extrabold text-sm hover:bg-pink-700 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-md hover:shadow-lg w-full md:w-auto"
+              className="px-6 py-3.5 rounded-2xl bg-pink-600 text-white font-extrabold text-sm hover:bg-pink-700 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-md hover:shadow-lg w-full lg:w-auto"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Isi Laporan Baru</span>
@@ -248,10 +249,13 @@ export const TentorDashboard: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {myStudents.map((student) => {
-              // Check if report for week 4 already exists for this student
+              // Check if report for currentWeek already exists for this student
               const hasLatestReport = myReports.some(
-                (r) => r.studentId === student.id && r.mingguKe === 4
+                (r) => r.studentId === student.id && r.mingguKe === currentWeek
               );
+
+              const missedWeeks = Array.from({ length: 5 }, (_, i) => i + 1)
+                .filter(week => week !== currentWeek && !myReports.some(r => r.studentId === student.id && r.mingguKe === week));
 
               return (
                 <div
@@ -275,7 +279,6 @@ export const TentorDashboard: React.FC = () => {
                       <span className="text-slate-500 font-bold">Kelas:</span>
                       <span className="font-extrabold text-slate-800">{student.jenjang} Kelas {student.kelas}</span>
                     </div>
-
                     <div className="flex items-center justify-between text-xs bg-slate-50 p-3 rounded-2xl border border-slate-100">
                       <span className="text-slate-500 font-bold">Orang Tua:</span>
                       <span className="font-extrabold text-slate-800">{student.namaOrangTua}</span>
@@ -284,7 +287,7 @@ export const TentorDashboard: React.FC = () => {
 
                   <div className="pt-2 space-y-3">
                     <button
-                      onClick={() => handleOpenNewReport(student)}
+                      onClick={() => handleOpenNewReport(student, currentWeek)}
                       className="w-full py-3 px-4 rounded-xl font-bold text-xs text-pink-700 bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <PlusCircle className="w-4 h-4" />
@@ -294,11 +297,31 @@ export const TentorDashboard: React.FC = () => {
                     {hasLatestReport && (
                       <div className="text-[10px] text-center font-extrabold text-green-600 flex items-center justify-center gap-1 uppercase tracking-wider bg-green-50 py-1.5 rounded-lg border border-green-100">
                         <CheckCircle className="w-3.5 h-3.5" />
-                        Laporan M-4 Terisi
+                        Laporan M-{currentWeek} Terisi
+                      </div>
+                    )}
+                    
+                    {missedWeeks.length > 0 && (
+                      <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
+                          Laporan Belum Terisi
+                        </span>
+                        <div className="flex flex-wrap justify-center gap-2">
+                          {missedWeeks.map(week => (
+                            <button
+                              key={week}
+                              onClick={() => handleOpenNewReport(student, week)}
+                              className="py-1 px-2.5 rounded-lg font-bold text-[10px] text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all flex items-center gap-1 cursor-pointer"
+                              title={`Isi laporan minggu ke-${week}`}
+                            >
+                              <AlertCircle className="w-3 h-3" />
+                              M-{week}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
-
                 </div>
               );
             })}
@@ -364,6 +387,7 @@ export const TentorDashboard: React.FC = () => {
           isOpen={isReportModalOpen}
           onClose={() => setIsReportModalOpen(false)}
           preselectedStudent={selectedStudentForReport}
+          preselectedWeek={selectedWeekForReport}
           editingReport={editingReport}
         />
       )}
