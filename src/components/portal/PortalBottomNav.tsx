@@ -176,7 +176,7 @@ export const PortalBottomNav: React.FC = () => {
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] px-2 py-2 pb-safe">
-      <div className="flex items-center justify-start sm:justify-around gap-1 w-full overflow-x-auto hide-scrollbar pb-1">
+      <div className="flex items-center justify-evenly sm:justify-around gap-2 sm:gap-1 w-full overflow-x-auto hide-scrollbar pb-1">
         {renderNavItems()}
       </div>
     </div>
