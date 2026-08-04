@@ -98,7 +98,7 @@ export const LoginModal: React.FC = () => {
         {/* Header */}
         <div className="text-center space-y-4 relative z-10 mb-8">
           <div className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center mx-auto shadow-lg shadow-purple-500/30 overflow-hidden bg-white">
-            <img src="/favicon.png" alt="Logo Alberta" className="w-full h-full object-cover" />
+            <img src="https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png" alt="Logo Alberta" className="w-full h-full object-cover" />
           </div>
           <div className="space-y-1">
             <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">

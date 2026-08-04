@@ -12,7 +12,7 @@ export default defineConfig(() => {
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'auto',
-        includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+        includeAssets: [],
         manifest: {
           name: 'Bimbel Alberta',
           short_name: 'Alberta',
@@ -22,13 +22,13 @@ export default defineConfig(() => {
           display: 'standalone',
           icons: [
             {
-              src: 'icon-192x192.png',
+              src: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'any maskable'
             },
             {
-              src: 'icon-512x512.png',
+              src: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20513X513.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any maskable'

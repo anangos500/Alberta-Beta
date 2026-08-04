@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-5 space-y-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl shadow-lg overflow-hidden bg-white">
-                <img src="/favicon.png" alt="Logo Alberta" className="w-full h-full object-cover" />
+                <img src="https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png" alt="Logo Alberta" className="w-full h-full object-cover" />
               </div>
               <div>
                 <span className="font-extrabold text-2xl tracking-tight text-white">
