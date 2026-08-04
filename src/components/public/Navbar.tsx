@@ -23,8 +23,8 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-sm w-full">
-      <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-12">
-        <div className="flex items-center justify-between h-14 sm:h-20">
+      <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo Alberta */}
           <Link 
@@ -33,15 +33,15 @@ export const Navbar: React.FC = () => {
             onClick={handleNavClick}
             className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0"
           >
-            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shrink-0">
-              <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shrink-0">
+              <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-0 sm:gap-1.5">
-                <span className="font-black text-[17px] sm:text-xl tracking-tight text-slate-900 leading-tight">
+                <span className="font-black text-lg sm:text-xl tracking-tight text-slate-900 leading-tight">
                   Alberta.
                 </span>
-                <span className="text-[8px] sm:text-[10px] uppercase tracking-widest font-bold px-1.5 sm:px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap hidden min-[360px]:block">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap hidden min-[360px]:block">
                   TK, SD & SMP
                 </span>
               </div>
@@ -49,13 +49,13 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Nav Items */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-3">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 state={{ fromPortal: true }}
-                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
+                className="px-2.5 xl:px-4 py-2 text-[14px] xl:text-[15px] font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all cursor-pointer"
               >
                 {item.label}
               </Link>
