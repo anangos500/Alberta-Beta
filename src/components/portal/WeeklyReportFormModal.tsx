@@ -55,6 +55,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
   const [saranTentor, setSaranTentor] = useState<string>('');
 
   const [photos, setPhotos] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const [isUploading, setIsUploading] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
@@ -104,6 +105,9 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
     } else if (filteredStudents.length > 0) {
       setSelectedStudentId(filteredStudents[0].id);
     }
+    
+    // Reset pending files
+    setPendingFiles({});
   }, [editingReport, preselectedStudent, isOpen]);
 
   useEffect(() => {
@@ -160,26 +164,33 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
 
     setIsUploading(true);
     let finalPhotos = [...photos];
-    for (let i = 0; i < finalPhotos.length; i++) {
-      const p = finalPhotos[i];
+    
+    // Upload files in parallel
+    const uploadPromises = finalPhotos.map(async (p, i) => {
       if (pendingFiles[p]) {
         try {
           const publicUrl = await uploadImageToSupabase(pendingFiles[p]);
           if (publicUrl) {
             finalPhotos[i] = publicUrl;
             URL.revokeObjectURL(p);
+            return true;
           } else {
-            alert('Gagal mengunggah foto ke Supabase.');
-            setIsUploading(false);
-            return;
+            return false;
           }
         } catch (e) {
-             console.error(e);
-             alert('Terjadi kesalahan saat mengunggah foto.');
-             setIsUploading(false);
-             return;
+          console.error(e);
+          return false;
         }
       }
+      return true; // No upload needed
+    });
+
+    const results = await Promise.all(uploadPromises);
+    
+    if (results.some(r => !r)) {
+      alert('Gagal mengunggah beberapa foto ke Supabase.');
+      setIsUploading(false);
+      return;
     }
 
     const reportData = {
