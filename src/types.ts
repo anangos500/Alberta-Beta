@@ -9,7 +9,7 @@ export interface Student {
   jenjang: Jenjang;
   kelas: number; // 0 for TK, 1-6 for SD, 7-9 for SMP
   sekolah: string;
-  status: 'aktif' | 'nonaktif'; // 'nonaktif' for soft-deleted / alumni
+  status: 'aktif' | 'cuti'; // 'nonaktif' for soft-deleted / alumni
   namaOrangTua: string;
   noHpOrangTua: string;
   parentId: string; // connects to parent user

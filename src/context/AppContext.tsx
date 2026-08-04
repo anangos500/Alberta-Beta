@@ -362,7 +362,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       kelas: newStudentData.kelas,
       sekolah: newStudentData.sekolah,
       status: newStudentData.status,
-      tentor_id: newStudentData.tentorId,
+      tentor_id: newStudentData.tentorId || null,
       parent_id: parentId || null
     };
 
@@ -392,21 +392,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setStudents((prev) => [...prev, fullStudent]);
     } else {
        console.error('Error adding student:', error);
-       alert('Gagal menyimpan data siswa.');
+       alert('Gagal menyimpan data siswa: ' + JSON.stringify(error));
     }
   };
 
   const updateStudent = async (updatedStudent: any) => {
     if (!import.meta.env.VITE_SUPABASE_URL) return;
-    const { error } = await supabase.from('students').update(updatedStudent).eq('id', updatedStudent.id);
-    if (!error) setStudents((prev) => prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s)));
+    const dbUpdateData = {
+      nama: updatedStudent.nama,
+      jenjang: updatedStudent.jenjang,
+      kelas: updatedStudent.kelas,
+      sekolah: updatedStudent.sekolah,
+      status: updatedStudent.status,
+      tentor_id: updatedStudent.tentorId || null,
+      parent_id: updatedStudent.parentId || null
+    };
+    const { error } = await supabase.from('students').update(dbUpdateData).eq('id', updatedStudent.id);
+    if (error) {
+      console.error("Error updating student:", error);
+      alert('Gagal memperbarui status siswa: ' + JSON.stringify(error));
+    } else {
+      setStudents((prev) => prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s)));
+    }
   };
 
   const toggleStudentStatus = async (id: string) => {
     if (!import.meta.env.VITE_SUPABASE_URL) return;
     const student = students.find(s => s.id === id);
     if (student) {
-      const newStatus = student.status === 'aktif' ? 'nonaktif' : 'aktif';
+      const newStatus = student.status === 'aktif' ? 'cuti' : 'aktif';
       await updateStudent({ ...student, status: newStatus });
     }
   };
