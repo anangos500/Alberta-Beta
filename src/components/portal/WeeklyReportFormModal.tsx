@@ -9,6 +9,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   preselectedStudent?: Student | null;
+  preselectedWeek?: number;
   editingReport?: WeeklyReport | null;
 }
 
@@ -16,6 +17,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
   isOpen,
   onClose,
   preselectedStudent,
+  preselectedWeek,
   editingReport
 }) => {
   const { students, currentUser, addWeeklyReport, updateWeeklyReport, reports } = useApp();
@@ -24,7 +26,15 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
   const activeStudents = students.filter((s) => s.status === 'aktif');
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
-  const [mingguKe, setMingguKe] = useState<number>(4);
+  const [mingguKe, setMingguKe] = useState<number>(preselectedWeek || Math.ceil(new Date().getDate() / 7));
+
+  const filteredStudents = activeStudents.filter((s) => {
+    if (editingReport && editingReport.studentId === s.id) return true;
+    return !reports.some(
+      (r) => r.studentId === s.id && r.mingguKe === mingguKe && r.tentorId === currentUser?.id
+    );
+  });
+
   const [tanggal, setTanggal] = useState<string>(new Date().toISOString().split('T')[0]);
   const [hari, setHari] = useState<string>('Selasa');
   const [mataPelajaran, setMataPelajaran] = useState<string>('Matematika & IPA');
@@ -91,10 +101,23 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       } else {
         setMataPelajaran('Fisika & Matematika SMP');
       }
-    } else if (activeStudents.length > 0) {
-      setSelectedStudentId(activeStudents[0].id);
+    } else if (filteredStudents.length > 0) {
+      setSelectedStudentId(filteredStudents[0].id);
     }
   }, [editingReport, preselectedStudent, isOpen]);
+
+  useEffect(() => {
+    // If the currently selected student is no longer in the filtered list (e.g. because mingguKe changed),
+    // we should select the first available student or clear it.
+    if (!editingReport) {
+      const isValid = filteredStudents.some(s => s.id === selectedStudentId);
+      if (!isValid && filteredStudents.length > 0) {
+        setSelectedStudentId(filteredStudents[0].id);
+      } else if (!isValid && filteredStudents.length === 0) {
+        setSelectedStudentId('');
+      }
+    }
+  }, [mingguKe, filteredStudents.length]);
 
   if (!isOpen) return null;
 
@@ -112,7 +135,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
     setPhotos(photos.filter((_, i) => i !== index));
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -121,35 +144,42 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       return;
     }
 
-    setIsUploading(true);
-
     const previewUrl = URL.createObjectURL(file);
     setPhotos(prev => [...prev, previewUrl]);
-
-    const publicUrl = await uploadImageToSupabase(file);
-    if (publicUrl) {
-      // Replace the object URL preview with the actual public URL
-      setPhotos(prev => {
-        const newPhotos = [...prev];
-        const index = newPhotos.indexOf(previewUrl);
-        if (index !== -1) {
-          newPhotos[index] = publicUrl;
-        }
-        return newPhotos;
-      });
-      URL.revokeObjectURL(previewUrl);
-    } else {
-      setPhotos(prev => prev.filter(p => p !== previewUrl));
-      alert('Gagal mengunggah foto ke Supabase. Pastikan bucket "images" sudah dibuat dan public.');
-    }
-    setIsUploading(false);
+    setPendingFiles(prev => ({ ...prev, [previewUrl]: file }));
+    
+    if (e.target) e.target.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentStudent) {
       alert('Silakan pilih siswa terlebih dahulu.');
       return;
+    }
+
+    setIsUploading(true);
+    let finalPhotos = [...photos];
+    for (let i = 0; i < finalPhotos.length; i++) {
+      const p = finalPhotos[i];
+      if (pendingFiles[p]) {
+        try {
+          const publicUrl = await uploadImageToSupabase(pendingFiles[p]);
+          if (publicUrl) {
+            finalPhotos[i] = publicUrl;
+            URL.revokeObjectURL(p);
+          } else {
+            alert('Gagal mengunggah foto ke Supabase.');
+            setIsUploading(false);
+            return;
+          }
+        } catch (e) {
+             console.error(e);
+             alert('Terjadi kesalahan saat mengunggah foto.');
+             setIsUploading(false);
+             return;
+        }
+      }
     }
 
     const reportData = {
@@ -167,7 +197,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       ratings: ratings,
       targetBerikutnya: targetBerikutnya || 'Siswa diharapkan dapat menyelesaikan soal latihan secara mandiri.',
       saranTentor: saranTentor || 'Mohon melatih pengerjaan soal 10-15 menit setiap hari di rumah.',
-      dokumentasiFoto: photos,
+      dokumentasiFoto: finalPhotos,
     };
 
     if (editingReport) {
@@ -180,6 +210,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       addWeeklyReport(reportData);
     }
 
+    setIsUploading(false);
     onClose();
   };
 
@@ -227,7 +258,10 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
                   onChange={(e) => setSelectedStudentId(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
                 >
-                  {activeStudents.map((s) => (
+                  {filteredStudents.length === 0 && (
+                    <option value="" disabled>Semua siswa sudah dinilai minggu ini</option>
+                  )}
+                  {filteredStudents.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.nama} ({s.jenjang} Kelas {s.kelas})
                     </option>
@@ -611,7 +645,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
           <button
             type="submit"
             form="report-form"
-            disabled={isUploading}
+            disabled={isUploading || (!selectedStudentId)}
             className="px-6 py-2.5 rounded-xl font-bold text-teal-900 bg-teal-200 hover:bg-teal-300 shadow-sm transition-all text-xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
