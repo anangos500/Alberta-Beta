@@ -87,13 +87,13 @@ export const ProgramsSection: React.FC = () => {
   });
 
   return (
-    <section id="program" className="py-16 lg:py-24 bg-white relative overflow-hidden">
+    <section id="program" className="py-12 lg:py-16 bg-white relative overflow-hidden">
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
             Program Alberta
           </h2>
           <p className="text-slate-600 text-base sm:text-lg">
@@ -104,12 +104,12 @@ export const ProgramsSection: React.FC = () => {
         {/* Programs Grid */}
         <div 
           ref={scrollRef}
-          className="mt-10 lg:mt-16 flex overflow-x-auto pb-8 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 snap-x snap-mandatory hide-scrollbar justify-start md:justify-center scroll-smooth"
+          className="mt-10 lg:mt-16 flex md:grid overflow-x-auto md:overflow-visible pb-8 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 md:grid-cols-3 gap-6 md:gap-8 snap-x snap-mandatory hide-scrollbar justify-start md:justify-center scroll-smooth"
         >
           {displayPrograms.map((prog) => (
             <div
               key={prog.id}
-              className="w-[80vw] sm:w-[320px] md:w-auto md:min-w-0 bg-white rounded-[2rem] p-4 flex flex-col shadow-xl md:shadow-2xl hover:-translate-y-2 transition-transform duration-300 snap-center shrink-0"
+              className="w-[85vw] sm:w-[350px] md:w-auto md:min-w-0 bg-white rounded-[2rem] p-4 flex flex-col shadow-xl md:shadow-2xl hover:-translate-y-2 transition-transform duration-300 snap-center shrink-0"
             >
               {/* Card Image Thumbnail */}
               <div className="relative h-40 sm:h-48 w-full rounded-[1.5rem] overflow-hidden mb-4 bg-slate-100 shrink-0">
