@@ -19,81 +19,40 @@ export const PublicSettingsAdmin: React.FC = () => {
   const [uploadingGallery, setUploadingGallery] = useState<number | null>(null);
   const [uploadingFeatureImage, setUploadingFeatureImage] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingUploads, setPendingUploads] = useState<Record<string, { file: File, objectUrl: string }>>({});
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSlideImageUpload = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    setUploadingSlide(idx);
-    try {
-      const url = await uploadImageToSupabase(file, 'images');
-      if (url) {
-        const newSlides = [...content.hero_slides];
-        newSlides[idx].image = url;
-        setContent({ ...content, hero_slides: newSlides });
-      } else {
-        alert("Gagal mengunggah gambar. Pastikan bucket 'images' telah diatur menjadi public.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan saat mengunggah gambar.");
-    } finally {
-      setUploadingSlide(null);
-      if (e.target) {
-        e.target.value = '';
-      }
-    }
+    const objectUrl = URL.createObjectURL(file);
+    const newSlides = [...content.hero_slides];
+    newSlides[idx].image = objectUrl;
+    setContent({ ...content, hero_slides: newSlides });
+    setPendingUploads(prev => ({ ...prev, [`slide_${idx}`]: { file, objectUrl } }));
+    if (e.target) e.target.value = '';
   };
 
   const handleProgramImageUpload = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    setUploadingProgram(idx);
-    try {
-      const url = await uploadImageToSupabase(file, 'images');
-      if (url) {
-        const newProgs = [...content.programs];
-        newProgs[idx].image = url;
-        setContent({ ...content, programs: newProgs });
-      } else {
-        alert("Gagal mengunggah gambar. Pastikan bucket 'images' telah diatur menjadi public.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan saat mengunggah gambar.");
-    } finally {
-      setUploadingProgram(null);
-      if (e.target) {
-        e.target.value = '';
-      }
-    }
+    const objectUrl = URL.createObjectURL(file);
+    const newProgs = [...content.programs];
+    newProgs[idx].image = objectUrl;
+    setContent({ ...content, programs: newProgs });
+    setPendingUploads(prev => ({ ...prev, [`program_${idx}`]: { file, objectUrl } }));
+    if (e.target) e.target.value = '';
   };
 
   const handleGalleryImageUpload = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    setUploadingGallery(idx);
-    try {
-      const url = await uploadImageToSupabase(file, 'images');
-      if (url) {
-        const newGallery = [...(content.gallery_items || [])];
-        newGallery[idx].image = url;
-        setContent({ ...content, gallery_items: newGallery });
-      } else {
-        alert("Gagal mengunggah gambar. Pastikan bucket 'images' telah diatur menjadi public.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan saat mengunggah gambar.");
-    } finally {
-      setUploadingGallery(null);
-      if (e.target) {
-        e.target.value = '';
-      }
-    }
+    const objectUrl = URL.createObjectURL(file);
+    const newGallery = [...(content.gallery_items || [])];
+    newGallery[idx].image = objectUrl;
+    setContent({ ...content, gallery_items: newGallery });
+    setPendingUploads(prev => ({ ...prev, [`gallery_${idx}`]: { file, objectUrl } }));
+    if (e.target) e.target.value = '';
   };
 
   useEffect(() => {
@@ -108,28 +67,43 @@ export const PublicSettingsAdmin: React.FC = () => {
   const handleFeatureImageUpload = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    setUploadingFeatureImage(idx);
-    try {
-      const url = await uploadImageToSupabase(file, 'images');
-      if (url) {
-        const newImages = [...(content.features_images || [])];
-        newImages[idx] = url;
-        setContent({ ...content, features_images: newImages });
-      } else {
-        alert("Gagal mengunggah gambar. Pastikan bucket 'images' telah diatur menjadi public.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan saat mengunggah gambar.");
-    } finally {
-      setUploadingFeatureImage(null);
-    }
+    const objectUrl = URL.createObjectURL(file);
+    const newImages = [...(content.features_images || [])];
+    newImages[idx] = objectUrl;
+    setContent({ ...content, features_images: newImages });
+    setPendingUploads(prev => ({ ...prev, [`feature_${idx}`]: { file, objectUrl } }));
+    if (e.target) e.target.value = '';
   };
 
   const handleSave = async () => {
     setIsSaving(true);
-    await updatePublicContent(content);
+    const updatedContent = JSON.parse(JSON.stringify(content));
+    const keys = Object.keys(pendingUploads);
+    for (const key of keys) {
+      const { file, objectUrl } = pendingUploads[key];
+      const url = await uploadImageToSupabase(file, 'images');
+      if (url) {
+        if (key.startsWith('slide_')) {
+          const idx = parseInt(key.split('_')[1]);
+          updatedContent.hero_slides[idx].image = url;
+        } else if (key.startsWith('program_')) {
+          const idx = parseInt(key.split('_')[1]);
+          updatedContent.programs[idx].image = url;
+        } else if (key.startsWith('gallery_')) {
+          const idx = parseInt(key.split('_')[1]);
+          updatedContent.gallery_items[idx].image = url;
+        } else if (key.startsWith('feature_')) {
+          const idx = parseInt(key.split('_')[1]);
+          updatedContent.features_images[idx] = url;
+        }
+        URL.revokeObjectURL(objectUrl);
+      } else {
+        alert("Gagal mengunggah salah satu gambar.");
+      }
+    }
+    await updatePublicContent(updatedContent);
+    setContent(updatedContent);
+    setPendingUploads({});
     setIsSaving(false);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
@@ -151,7 +125,7 @@ export const PublicSettingsAdmin: React.FC = () => {
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">Pengaturan Publik</h2>
           <p className="text-sm sm:text-base text-slate-600 mt-1">Kelola konten yang ditampilkan di halaman depan website.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
           {showSuccess && (
             <span className="text-sm font-semibold text-green-600 flex items-center gap-1.5 animate-in fade-in slide-in-from-right-4 duration-300">
               <Check className="w-4 h-4" /> Berhasil disimpan
@@ -160,7 +134,7 @@ export const PublicSettingsAdmin: React.FC = () => {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm sm:text-base transition-all shadow-md shrink-0 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm transition-all shadow-md shrink-0 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
           >
             {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
