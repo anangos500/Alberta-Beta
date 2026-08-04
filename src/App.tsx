@@ -6,6 +6,7 @@ const ProgramsSection = React.lazy(() => import('./components/public/ProgramsSec
 const TentorsSection = React.lazy(() => import('./components/public/TentorsSection').then(m => ({ default: m.TentorsSection })));
 const TestimonialSection = React.lazy(() => import('./components/public/TestimonialSection').then(m => ({ default: m.TestimonialSection })));
 const GallerySection = React.lazy(() => import('./components/public/GallerySection').then(m => ({ default: m.GallerySection })));
+const GalleryPage = React.lazy(() => import('./components/public/GalleryPage').then(m => ({ default: m.GalleryPage })));
 const FaqSection = React.lazy(() => import('./components/public/FaqSection').then(m => ({ default: m.FaqSection })));
 const ContactSection = React.lazy(() => import('./components/public/ContactSection').then(m => ({ default: m.ContactSection })));
 const CtaSection = React.lazy(() => import('./components/public/CtaSection').then(m => ({ default: m.CtaSection })));
@@ -153,6 +154,12 @@ const MainAppContent: React.FC = () => {
         <Route path="/kontak" element={
           <PublicLayout>
             <ContactSection />
+          </PublicLayout>
+        } />
+        
+        <Route path="/galeri" element={
+          <PublicLayout>
+            <GalleryPage />
           </PublicLayout>
         } />
         
