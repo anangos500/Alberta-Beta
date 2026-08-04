@@ -226,6 +226,12 @@ export const AdminDashboard: React.FC = () => {
   const [editingJadwal, setEditingJadwal] = useState<Jadwal | null>(null);
 
   const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null);
+  
+  const [studentPage, setStudentPage] = useState(1);
+  const studentsPerPage = 10;
+  
+  const [tentorPage, setTentorPage] = useState(1);
+  const tentorsPerPage = 10;
 
   // Statistics
   const totalAktif = students.filter((s) => s.status === 'aktif').length;
@@ -233,7 +239,7 @@ export const AdminDashboard: React.FC = () => {
   const totalSMP = students.filter((s) => s.status === 'aktif' && s.jenjang === 'SMP').length;
   const totalNonaktif = students.filter((s) => s.status === 'nonaktif').length;
 
-  const currentWeek = 4; // Mock minggu sekarang
+  const currentWeek = Math.ceil(new Date().getDate() / 7); // Calculate current week of the month
   const reportsThisWeek = reports.filter(r => r.mingguKe === currentWeek);
   const tentorIdsWithReports = new Set(reportsThisWeek.map(r => r.tentorId));
   const tentorSudahLaporan = tentors.filter(t => tentorIdsWithReports.has(t.id));
@@ -251,9 +257,14 @@ export const AdminDashboard: React.FC = () => {
 
     return matchesSearch && matchesJenjang && matchesStatus;
   });
+  const paginatedStudents = filteredStudents.slice((studentPage - 1) * studentsPerPage, studentPage * studentsPerPage);
+  const totalStudentPages = Math.ceil(filteredStudents.length / studentsPerPage);
+  
+  const paginatedTentors = tentors.slice((tentorPage - 1) * tentorsPerPage, tentorPage * tentorsPerPage);
+  const totalTentorPages = Math.ceil(tentors.length / tentorsPerPage);
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-8 max-w-6xl mx-auto">
       
       {/* Top Banner - Only on dashboard */}
       {portalTab === 'dashboard' && (
@@ -270,10 +281,9 @@ export const AdminDashboard: React.FC = () => {
               Kelola data master siswa TK, SD SD & SMP SMP, penugasan tentor, serta pemantauan rekap laporan perkembangan belajar mingguan.
             </p>
           </div>
-
           <button
             onClick={() => setIsRekapModalOpen(true)}
-            className="px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl bg-emerald-600 text-white font-extrabold text-xs sm:text-sm hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-md hover:shadow-lg w-full md:w-auto"
+            className="px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-xl sm:rounded-2xl bg-emerald-600 text-white font-extrabold text-xs sm:text-sm hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-md hover:shadow-lg w-full sm:w-auto"
           >
             <FileSpreadsheet className="w-4 h-4 shrink-0" />
             <span>Download Rekap Excel</span>
@@ -284,27 +294,24 @@ export const AdminDashboard: React.FC = () => {
       {/* Summary Stat Cards - Only on dashboard */}
       {portalTab === 'dashboard' && (
         <div className="space-y-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             <div className="bg-white p-4 sm:p-5 lg:p-6 rounded-[1.25rem] sm:rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col h-full gap-1.5 sm:gap-2">
-              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Siswa Aktif</div>
+              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider min-h-[2.5rem] sm:min-h-[3rem] flex items-start">Total Siswa Aktif</div>
               <div className="text-3xl font-black text-slate-900">{totalAktif} <span className="text-sm font-bold text-slate-500">Siswa</span></div>
               <p className="text-[11px] text-purple-600 font-bold bg-purple-50 inline-block px-2 py-0.5 rounded-md border border-purple-100 mt-auto self-start">TK, SD SD & SMP SMP</p>
             </div>
-
             <div className="bg-white p-4 sm:p-5 lg:p-6 rounded-[1.25rem] sm:rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col h-full gap-1.5 sm:gap-2">
-              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Tentor</div>
+              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider min-h-[2.5rem] sm:min-h-[3rem] flex items-start">Total Tentor</div>
               <div className="text-3xl font-black text-slate-900">{tentors.length} <span className="text-sm font-bold text-slate-500">Pengajar</span></div>
               <p className="text-[11px] text-purple-600 font-bold bg-purple-50 inline-block px-2 py-0.5 rounded-md border border-purple-100 mt-auto self-start">Aktif Mengajar</p>
             </div>
-
             <div className="bg-white p-4 sm:p-5 lg:p-6 rounded-[1.25rem] sm:rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col h-full gap-1.5 sm:gap-2">
-              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Laporan Minggu Ke-{currentWeek}</div>
+              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider min-h-[2.5rem] sm:min-h-[3rem] flex items-start">Laporan Minggu Ke-{currentWeek}</div>
               <div className="text-3xl font-black text-emerald-600">{tentorSudahLaporan.length} <span className="text-sm font-bold text-emerald-400">Tentor</span></div>
               <p className="text-[11px] text-emerald-700 font-bold bg-emerald-50 inline-block px-2 py-0.5 rounded-md border border-emerald-200 mt-auto self-start">Sudah Submit</p>
             </div>
-
             <div className="bg-white p-4 sm:p-5 lg:p-6 rounded-[1.25rem] sm:rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col h-full gap-1.5 sm:gap-2">
-              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Belum Laporan</div>
+              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider min-h-[2.5rem] sm:min-h-[3rem] flex items-start">Belum Laporan</div>
               <div className="text-3xl font-black text-rose-500">{tentorBelumLaporan.length} <span className="text-sm font-bold text-rose-300">Tentor</span></div>
               <p className="text-[11px] text-rose-700 font-bold bg-rose-50 inline-block px-2 py-0.5 rounded-md border border-rose-200 mt-auto self-start">Menunggu Submit</p>
             </div>
@@ -402,7 +409,10 @@ export const AdminDashboard: React.FC = () => {
                   type="text"
                   placeholder="Cari siswa / sekolah..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                  setSearch(e.target.value);
+                  setStudentPage(1);
+                }}
                   className="w-full sm:w-56 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 bg-slate-50 transition-colors font-semibold"
                 />
               </div>
@@ -444,7 +454,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             ) : (
-              filteredStudents.map((s) => (
+              paginatedStudents.map((s) => (
                 <MobileStudentCard
                   key={s.id}
                   student={s}
@@ -486,7 +496,7 @@ export const AdminDashboard: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredStudents.map((s) => (
+                  paginatedStudents.map((s) => (
                     <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="p-4">
                         <div className="font-extrabold text-slate-900">{s.nama}</div>
@@ -583,7 +593,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {tentors.map((tentor) => {
+            {paginatedTentors.map((tentor) => {
               const tentorReports = reports.filter(r => r.tentorId === tentor.id);
               return (
                 <div key={tentor.id} className="bg-slate-50 rounded-2xl sm:rounded-[1.5rem] border border-slate-200 p-4 sm:p-6 flex flex-col justify-between h-full space-y-4 sm:space-y-6">
@@ -614,6 +624,27 @@ export const AdminDashboard: React.FC = () => {
               );
             })}
           </div>
+          {totalTentorPages > 1 && (
+            <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
+              <button
+                onClick={() => setTentorPage(p => Math.max(1, p - 1))}
+                disabled={tentorPage === 1}
+                className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <span className="text-xs font-bold text-slate-500">
+                Halaman {tentorPage} dari {totalTentorPages}
+              </span>
+              <button
+                onClick={() => setTentorPage(p => Math.min(totalTentorPages, p + 1))}
+                disabled={tentorPage === totalTentorPages}
+                className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -640,7 +671,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {tentors.map((t) => (
+            {paginatedTentors.map((t) => (
               <TentorCard
                 key={t.id}
                 tentor={t}
@@ -651,6 +682,27 @@ export const AdminDashboard: React.FC = () => {
               />
             ))}
           </div>
+          {totalTentorPages > 1 && (
+            <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
+              <button
+                onClick={() => setTentorPage(p => Math.max(1, p - 1))}
+                disabled={tentorPage === 1}
+                className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <span className="text-xs font-bold text-slate-500">
+                Halaman {tentorPage} dari {totalTentorPages}
+              </span>
+              <button
+                onClick={() => setTentorPage(p => Math.min(totalTentorPages, p + 1))}
+                disabled={tentorPage === totalTentorPages}
+                className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
