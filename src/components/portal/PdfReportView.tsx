@@ -53,8 +53,8 @@ export const PdfReportView: React.FC<Props> = ({ report, onClose }) => {
           {/* Header Kop Bimbel Alberta */}
           <div className="flex items-center justify-between border-b border-stone-200 pb-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-black text-2xl font-serif">
-                <GraduationCap className="w-8 h-8" />
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center font-black text-2xl font-serif overflow-hidden bg-white">
+                <img src="/favicon.png" alt="Logo Alberta" className="w-full h-full object-cover" />
               </div>
               <div>
                 <h1 className="text-2xl font-black text-stone-900 font-serif tracking-tight">

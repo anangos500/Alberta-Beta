@@ -225,8 +225,8 @@ export const PortalSidebar: React.FC = () => {
             <span>Website Publik</span>
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center font-black text-sm shadow-md shrink-0">
-              <GraduationCap className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shadow-md shrink-0 overflow-hidden bg-white">
+              <img src="/favicon.png" alt="Logo Alberta" className="w-full h-full object-cover" />
             </div>
             <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 truncate">
               Portal Albertian.

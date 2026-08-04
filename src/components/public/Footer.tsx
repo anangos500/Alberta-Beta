@@ -8,15 +8,15 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="bg-slate-900 text-slate-400 pt-20 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           
           {/* Brand Info */}
           <div className="md:col-span-5 space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center font-black text-xl shadow-lg">
-                <GraduationCap className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl shadow-lg overflow-hidden bg-white">
+                <img src="/favicon.png" alt="Logo Alberta" className="w-full h-full object-cover" />
               </div>
               <div>
                 <span className="font-extrabold text-2xl tracking-tight text-white">
