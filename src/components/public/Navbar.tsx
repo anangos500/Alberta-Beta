@@ -49,13 +49,13 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Nav Items */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-3">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 state={{ fromPortal: true }}
-                className="px-2.5 xl:px-4 py-2 text-[14px] xl:text-[15px] font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all cursor-pointer"
+                className="px-2 xl:px-3 py-2 text-[13px] xl:text-[14px] font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all cursor-pointer"
               >
                 {item.label}
               </Link>
@@ -65,27 +65,26 @@ export const Navbar: React.FC = () => {
           {/* Right Side Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Right Action Buttons */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2">
               {currentUser ? (
                 <button
                   onClick={() => navigate('/portal')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold text-purple-700 bg-purple-100 hover:bg-purple-200 transition-all cursor-pointer border border-purple-200"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 xl:px-4 xl:py-2.5 rounded-full text-xs xl:text-sm font-semibold text-purple-700 bg-purple-100 hover:bg-purple-200 transition-all cursor-pointer border border-purple-200"
                 >
                   <Sparkles className="w-4 h-4 text-purple-600" />
-                  <span>Portal ({currentUser.nama.split(' ')[0]})</span>
+                  <span className="whitespace-nowrap">Portal ({currentUser.nama.split(' ')[0]})</span>
                 </button>
               ) : (
                 <button
                   onClick={() => setIsLoginModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border-2 border-slate-200 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2 xl:px-5 xl:py-2.5 rounded-full text-xs xl:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border-2 border-slate-200 transition-all cursor-pointer whitespace-nowrap"
                 >
                   <span>Masuk</span>
                 </button>
               )}
-
               <button
                 onClick={() => setIsRegisterModalOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all cursor-pointer shadow-md shadow-purple-500/25"
+                className="inline-flex items-center gap-2 px-4 py-2 xl:px-5 xl:py-2.5 rounded-full text-xs xl:text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all cursor-pointer shadow-md shadow-purple-500/25 whitespace-nowrap"
               >
                 <span>Daftar Sekarang</span>
               </button>
