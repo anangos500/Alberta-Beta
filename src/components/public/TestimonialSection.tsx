@@ -10,7 +10,7 @@ export const TestimonialSection: React.FC = () => {
 
     const intervalId = setInterval(() => {
       // Only auto-scroll on mobile
-      if (window.innerWidth >= 640) return;
+      if (window.innerWidth >= 768) return;
       
       if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 20) {
         container.scrollTo({ left: 0, behavior: 'smooth' });
@@ -47,11 +47,11 @@ export const TestimonialSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 lg:py-24 bg-slate-50 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="py-12 lg:py-16 bg-slate-50 relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12 lg:mb-16">
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
             Testimoni Siswa & Orang Tua
           </h2>
           <p className="text-slate-600 text-base sm:text-lg">
@@ -61,10 +61,10 @@ export const TestimonialSection: React.FC = () => {
 
         <div 
           ref={scrollRef}
-          className="flex overflow-x-auto pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 gap-6 snap-x snap-mandatory hide-scrollbar scroll-smooth"
+          className="flex md:grid overflow-x-auto md:overflow-visible pb-8 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 md:grid-cols-3 gap-6 snap-x snap-mandatory hide-scrollbar scroll-smooth"
         >
           {testimonials.map((t) => (
-            <div key={t.id} className="w-[80vw] sm:w-[320px] sm:min-w-0 bg-white rounded-[2rem] p-6 sm:p-8 shadow-xl flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 snap-center shrink-0">
+            <div key={t.id} className="w-[85vw] sm:w-[350px] md:w-auto md:min-w-0 bg-white rounded-[2rem] p-6 sm:p-8 shadow-xl flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 snap-center shrink-0">
               <div className="space-y-6">
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((s) => (
