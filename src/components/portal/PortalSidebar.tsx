@@ -30,85 +30,85 @@ export const PortalSidebar: React.FC = () => {
           <>
             <button
               onClick={() => setPortalTab('dashboard')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'dashboard'
                   ? 'bg-purple-100 text-purple-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <LayoutDashboard className="w-5 h-5 shrink-0" />
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Beranda</span>
             </button>
 
             <button
               onClick={() => setPortalTab('siswa')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'siswa'
                   ? 'bg-purple-100 text-purple-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Users className="w-5 h-5 shrink-0" />
+              <Users className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Master Siswa (TK, SD SD & SMP SMP)</span>
             </button>
 
             <button
               onClick={() => setPortalTab('public_settings')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'public_settings'
                   ? 'bg-purple-100 text-purple-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <LayoutDashboard className="w-5 h-5 shrink-0" />
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Pengaturan Publik</span>
             </button>
 
             <button
               onClick={() => setPortalTab('tentor_master')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'tentor_master'
                   ? 'bg-purple-100 text-purple-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <UserCheck className="w-5 h-5 shrink-0" />
+              <UserCheck className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Data Tentor & Pengajar</span>
             </button>
 
             <button
               onClick={() => setPortalTab('jadwal')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'jadwal'
                   ? 'bg-purple-100 text-purple-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Calendar className="w-5 h-5 shrink-0" />
+              <Calendar className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Jadwal Belajar</span>
             </button>
 
             <button
               onClick={() => setPortalTab('pemberitahuan')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'pemberitahuan'
                   ? 'bg-purple-100 text-purple-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Bell className="w-5 h-5 shrink-0" />
+              <Bell className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Kirim Pemberitahuan</span>
             </button>
 
             <button
               onClick={() => setPortalTab('rekap_laporan')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'rekap_laporan'
                   ? 'bg-purple-100 text-purple-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-5 h-5 shrink-0" />
+              <FileText className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Semua Laporan Mingguan</span>
             </button>
           </>
@@ -119,49 +119,49 @@ export const PortalSidebar: React.FC = () => {
           <>
             <button
               onClick={() => setPortalTab('dashboard')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'dashboard'
                   ? 'bg-pink-100 text-pink-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <LayoutDashboard className="w-5 h-5 shrink-0" />
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Beranda</span>
             </button>
 
             <button
               onClick={() => setPortalTab('jadwal_mengajar')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'jadwal_mengajar'
                   ? 'bg-pink-100 text-pink-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Calendar className="w-5 h-5 shrink-0" />
+              <Calendar className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Jadwal Mengajar</span>
             </button>
 
             <button
               onClick={() => setPortalTab('buat_laporan')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'buat_laporan'
                   ? 'bg-pink-100 text-pink-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <PlusCircle className="w-5 h-5 shrink-0" />
+              <PlusCircle className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Isi Laporan Minggu Ini</span>
             </button>
 
             <button
               onClick={() => setPortalTab('history_tentor')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'history_tentor'
                   ? 'bg-pink-100 text-pink-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-5 h-5 shrink-0" />
+              <FileText className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Arsip Laporan Saya</span>
             </button>
           </>
@@ -172,37 +172,37 @@ export const PortalSidebar: React.FC = () => {
           <>
             <button
               onClick={() => setPortalTab('dashboard')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'dashboard'
                   ? 'bg-emerald-100 text-emerald-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <LayoutDashboard className="w-5 h-5 shrink-0" />
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Beranda</span>
             </button>
 
             <button
               onClick={() => setPortalTab('laporan')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'laporan'
                   ? 'bg-emerald-100 text-emerald-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-5 h-5 shrink-0" />
+              <FileText className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Laporan Mingguan</span>
             </button>
 
             <button
               onClick={() => setPortalTab('evaluasi')}
-              className={`w-full flex items-center gap-3 text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'evaluasi'
                   ? 'bg-emerald-100 text-emerald-700 shadow-sm'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <TrendingUp className="w-5 h-5 shrink-0" />
+              <TrendingUp className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Grafik & Ringkasan</span>
             </button>
           </>
@@ -212,7 +212,7 @@ export const PortalSidebar: React.FC = () => {
 
   return (
     <>
-      <aside className="hidden lg:flex w-72 bg-white border-r border-slate-100 shrink-0 p-4 h-screen sticky top-0 flex-col overflow-hidden">
+      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-100 shrink-0 p-4 h-screen sticky top-0 flex-col overflow-hidden">
         
         {/* Logo & Back to Public */}
         <div className="flex flex-col gap-3 mb-6">
