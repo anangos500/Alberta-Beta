@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, UserCheck, Sparkles, Loader2 } from 'lucide-react';
+import { X, Save, UserCheck, Sparkles, Loader2, Crop } from 'lucide-react';
 import { Tentor } from '../../types';
 import { uploadImageToSupabase } from '../../lib/imageUpload';
 import { ConfirmModal } from './ConfirmModal';
+import { ImageCropModal } from './ImageCropModal';
 
 interface Props {
   onClose: () => void;
@@ -18,6 +19,11 @@ export const TentorManagementModal: React.FC<Props> = ({ onClose, onSubmit, edit
   const [noHp, setNoHp] = useState('');
   const [bio, setBio] = useState('');
   const [foto, setFoto] = useState('');
+  
+  const [pendingFotoBlob, setPendingFotoBlob] = useState<File | null>(null);
+  
+  const [cropImageSrc, setCropImageSrc] = useState<string>('');
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const generatedEmail = nama ? `${nama.split(' ')[0].toLowerCase()}@alberta.id` : '';
   const [password, setPassword] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -37,8 +43,27 @@ export const TentorManagementModal: React.FC<Props> = ({ onClose, onSubmit, edit
     }
   }, [editingTentor]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsUploading(true);
+    let finalFotoUrl = foto;
+    if (pendingFotoBlob) {
+      try {
+        const publicUrl = await uploadImageToSupabase(pendingFotoBlob);
+        if (publicUrl) {
+          finalFotoUrl = publicUrl;
+        } else {
+          alert('Gagal mengunggah gambar ke Supabase.');
+          setIsUploading(false);
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Terjadi kesalahan saat mengunggah.');
+        setIsUploading(false);
+        return;
+      }
+    }
     const data: Partial<Tentor> & { email?: string; password?: string } = {
       nama,
       gelar,
@@ -46,13 +71,22 @@ export const TentorManagementModal: React.FC<Props> = ({ onClose, onSubmit, edit
       lulusan,
       noHp,
       bio,
-      foto
+      foto: finalFotoUrl
     };
     if (!editingTentor) {
       data.email = generatedEmail;
       data.password = password;
     }
+    setIsUploading(false);
     onSubmit(data);
+  };
+
+  const handleCropComplete = (croppedImageBlob: File) => {
+    setIsCropModalOpen(false);
+    const objectUrl = URL.createObjectURL(croppedImageBlob);
+    setFoto(objectUrl);
+    setPendingFotoBlob(croppedImageBlob);
+    URL.revokeObjectURL(cropImageSrc);
   };
 
   const handleClose = () => {
@@ -128,24 +162,15 @@ export const TentorManagementModal: React.FC<Props> = ({ onClose, onSubmit, edit
                 type="file"
                 accept="image/*"
                 disabled={isUploading}
-                onChange={async (e) => {
+                onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    setIsUploading(true);
-                    
-                    const previewUrl = URL.createObjectURL(file);
-                    setFoto(previewUrl);
-
-                    const publicUrl = await uploadImageToSupabase(file);
-                    if (publicUrl) {
-                      setFoto(publicUrl);
-                      URL.revokeObjectURL(previewUrl);
-                    } else {
-                      setFoto(editingTentor?.foto || `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`);
-                      alert('Gagal mengunggah gambar ke Supabase. Pastikan bucket "images" sudah dibuat dan public.');
-                    }
-                    setIsUploading(false);
+                    const objectUrl = URL.createObjectURL(file);
+                    setCropImageSrc(objectUrl);
+                    setIsCropModalOpen(true);
                   }
+                  // Reset file input so same file can be selected again
+                  e.target.value = '';
                 }}
                 className="w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer disabled:opacity-50"
               />
@@ -299,6 +324,14 @@ export const TentorManagementModal: React.FC<Props> = ({ onClose, onSubmit, edit
         isOpen={showConfirmClose} 
         onConfirm={onClose} 
         onCancel={() => setShowConfirmClose(false)} 
+      />
+
+      <ImageCropModal
+        isOpen={isCropModalOpen}
+        onClose={() => setIsCropModalOpen(false)}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+        aspectRatio={1}
       />
     </div>
   );
