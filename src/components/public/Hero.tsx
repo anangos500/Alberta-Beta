@@ -30,7 +30,7 @@ const slides = [
 ];
 
 export const Hero: React.FC = () => {
-  const { setIsRegisterModalOpen, publicContent } = useApp();
+  const { setIsRegisterModalOpen, setIsLoginModalOpen, publicContent } = useApp();
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -61,7 +61,7 @@ export const Hero: React.FC = () => {
   return (
     <section
       id="home"
-      className="relative h-[85vh] min-h-[550px] sm:min-h-[650px] flex items-center overflow-hidden bg-black"
+      className="relative h-[80vh] min-h-[500px] sm:min-h-[600px] flex items-end lg:items-center overflow-hidden bg-black pb-16 lg:pb-0"
     >
       {/* ================= BACKGROUND ================= */}
       {displaySlides.map((slide: any, index: number) => (
@@ -95,7 +95,7 @@ export const Hero: React.FC = () => {
 
             <div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white leading-[1.1] tracking-tight mb-6">
                 {activeSlide?.title
                   ?.split("Alberta")
                   .map((part: string, i: number, arr: string[]) => (
@@ -119,12 +119,19 @@ export const Hero: React.FC = () => {
             <div>
 
               {/* Desktop */}
-
               <button
                 onClick={() => handleCtaClick(activeSlide?.primary)}
-                className="hidden sm:inline-flex items-center justify-center bg-white text-black px-8 py-3.5 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+                className="hidden lg:inline-flex items-center justify-center bg-white text-black px-8 py-3.5 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
               >
                 {activeSlide?.buttonText || "Daftar Sekarang"}
+              </button>
+
+              {/* Tablet */}
+              <button
+                onClick={() => setIsRegisterModalOpen(true)}
+                className="hidden sm:inline-flex lg:hidden items-center justify-center bg-white text-black px-8 py-3.5 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+              >
+                Daftar Sekarang
               </button>
 
               {/* Mobile */}
@@ -139,7 +146,7 @@ export const Hero: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={() => setIsLoginModalOpen(true)}
                   className="flex-1 bg-white/10 border border-white/20 backdrop-blur-sm text-white py-3 rounded-full font-semibold"
                 >
                   Masuk
