@@ -64,7 +64,7 @@ export const RekapitulasiModal: React.FC<RekapitulasiModalProps> = ({
     const tentorStats = tentors.map(tentor => {
       const tentorStudents = students.filter(s => s.tentorId === tentor.id);
       const siswaAktif = tentorStudents.filter(s => s.status === 'aktif').length;
-      const siswaNonaktif = tentorStudents.filter(s => s.status === 'nonaktif').length;
+      const siswaNonaktif = tentorStudents.filter(s => s.status === 'cuti').length;
       const totalSiswa = tentorStudents.length;
 
       const tentorReports = filteredReps.filter(r => r.tentorId === tentor.id);

@@ -213,7 +213,7 @@ export const AdminDashboard: React.FC = () => {
 
   const [search, setSearch] = useState('');
   const [filterJenjang, setFilterJenjang] = useState<'ALL' | 'SD' | 'SMP'>('ALL');
-  const [filterStatus, setFilterStatus] = useState<'ALL' | 'aktif' | 'nonaktif'>('aktif');
+  const [filterStatus, setFilterStatus] = useState<'ALL' | 'aktif' | 'cuti'>('aktif');
 
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isRekapModalOpen, setIsRekapModalOpen] = useState(false);
@@ -237,7 +237,7 @@ export const AdminDashboard: React.FC = () => {
   const totalAktif = students.filter((s) => s.status === 'aktif').length;
   const totalSD = students.filter((s) => s.status === 'aktif' && s.jenjang === 'SD').length;
   const totalSMP = students.filter((s) => s.status === 'aktif' && s.jenjang === 'SMP').length;
-  const totalNonaktif = students.filter((s) => s.status === 'nonaktif').length;
+  const totalNonaktif = students.filter((s) => s.status === 'cuti').length;
 
   const currentWeek = Math.ceil(new Date().getDate() / 7); // Calculate current week of the month
   const reportsThisWeek = reports.filter(r => r.mingguKe === currentWeek);
@@ -432,11 +432,11 @@ export const AdminDashboard: React.FC = () => {
                 {/* Status Filter */}
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value as 'ALL' | 'aktif' | 'nonaktif')}
+                  onChange={(e) => setFilterStatus(e.target.value as 'ALL' | 'aktif' | 'cuti')}
                   className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-slate-50 font-bold text-slate-700 focus:outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 appearance-none cursor-pointer"
                 >
                   <option value="aktif">Status Aktif</option>
-                  <option value="nonaktif">Alumni</option>
+                  <option value="cuti">Alumni</option>
                   <option value="ALL">Semua Status</option>
                 </select>
               </div>
