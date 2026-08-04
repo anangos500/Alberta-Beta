@@ -50,13 +50,13 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Nav Items */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 state={{ fromPortal: true }}
-                className="px-2 xl:px-3 py-1.5 text-[12px] xl:text-[13px] font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all cursor-pointer"
+                className="px-1.5 xl:px-2 py-1.5 text-[11px] xl:text-[12px] font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all cursor-pointer whitespace-nowrap"
               >
                 {item.label}
               </Link>
