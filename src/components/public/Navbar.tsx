@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
     { label: 'Tentang Alberta', path: '/tentang' },
     { label: 'Program TK, SD & SMP', path: '/program' },
     { label: 'Tentor', path: '/tentor' },
+    { label: 'Galeri', path: '/galeri' },
     { label: 'FAQ', path: '/faq' },
     { label: 'Kontak', path: '/kontak' },
   ];
@@ -39,7 +40,7 @@ export const Navbar: React.FC = () => {
             <div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-0 sm:gap-1.5">
                 <span className="font-black text-lg sm:text-xl tracking-tight text-slate-900 leading-tight">
-                  Alberta.
+                  Alberta
                 </span>
                 <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full border border-purple-200 whitespace-nowrap hidden lg:block">
                   TK, SD & SMP
