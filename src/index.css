@@ -117,9 +117,3 @@ html {
   scrollbar-width: thin;
   scrollbar-color: #3b82f6 #f1f5f9;
 }
-
-@media (min-width: 1024px) {
-  html {
-    font-size: 13px;
-  }
-}
