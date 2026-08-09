@@ -31,6 +31,7 @@ import { ReportDetailModal } from './ReportDetailModal';
 import { JadwalManagementModal } from './JadwalManagementModal';
 import { NotificationManagement } from './NotificationManagement';
 import { RekapitulasiModal } from './RekapitulasiModal';
+import { AdminUlasanTab } from './AdminUlasanTab';
 import { PublicSettingsAdmin } from './PublicSettingsAdmin';
 import { FileSpreadsheet, Settings } from 'lucide-react';
 
@@ -809,6 +810,11 @@ export const AdminDashboard: React.FC = () => {
         <NotificationManagement />
       )}
 
+      {/* ULASAN TAB */}
+      {portalTab === 'ulasan' && (
+        <AdminUlasanTab />
+      )}
+      
       {/* PENGATURAN PUBLIK */}
       {portalTab === 'public_settings' && (
         <PublicSettingsAdmin />
