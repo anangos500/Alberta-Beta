@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Student, Tentor, Parent, WeeklyReport, UserAccount, Role, Jadwal, Notification } from '../types';
+import { Student, Tentor, Parent, WeeklyReport, UserAccount, Role, Jadwal, Notification as AppNotification } from '../types';
 import { supabase } from '../lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 
@@ -25,7 +25,7 @@ interface AppContextType {
   parents: Parent[];
   reports: WeeklyReport[];
   jadwalList: Jadwal[];
-  notifications: Notification[];
+  notifications: AppNotification[];
   ratings: any[];
   
   // Selected child for Orang Tua view
@@ -38,7 +38,7 @@ interface AppContextType {
   deleteJadwal: (id: string) => void;
 
   // Notification Actions
-  addNotification: (notification: Omit<Notification, 'id' | 'date'>) => void;
+  addNotification: (notification: Omit<AppNotification, 'id' | 'date'>) => void;
   deleteNotification: (id: string) => void;
 
   // Student Actions
@@ -83,7 +83,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [publicContent, setPublicContent] = useState<any>(null);
   const [parents, setParents] = useState<Parent[]>([]);
   const [jadwalList, setJadwalList] = useState<Jadwal[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [ratings, setRatings] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -257,6 +257,121 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     };
     fetchData();
+
+    // Polling fallback in case Supabase Realtime is not enabled
+    let lastNotifDate = new Date().toISOString();
+    const pollInterval = setInterval(async () => {
+      if (!currentUser || !import.meta.env.VITE_SUPABASE_URL) return;
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .gt('date', lastNotifDate)
+          .order('date', { ascending: false });
+
+        if (data && data.length > 0) {
+          // Update lastNotifDate to the newest one
+          lastNotifDate = data[0].date;
+          
+          data.reverse().forEach(newNotif => {
+            const isTargeted = 
+              newNotif.target_type === 'all' ||
+              (newNotif.target_type === currentUser.role) ||
+              (newNotif.target_id === currentUser.id);
+
+            if (isTargeted && newNotif.sender_id !== currentUser.id) {
+              const mappedNotif = {
+                ...newNotif,
+                targetType: newNotif.target_type,
+                targetId: newNotif.target_id,
+                senderId: newNotif.sender_id,
+              };
+              
+              setNotifications((prev) => {
+                 if (prev.find(n => n.id === mappedNotif.id)) return prev;
+                 return [mappedNotif, ...prev];
+              });
+
+              if ('Notification' in window && Notification.permission === 'granted') {
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg) {
+                      reg.showNotification(mappedNotif.title, {
+                        body: mappedNotif.message,
+                        icon: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png'
+                      });
+                    } else {
+                      try { new Notification(mappedNotif.title, { body: mappedNotif.message, icon: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png' }); } catch(e){}
+                    }
+                  });
+                } else {
+                  try { new Notification(mappedNotif.title, { body: mappedNotif.message, icon: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png' }); } catch(e){}
+                }
+              }
+            }
+          });
+        }
+      } catch (err) {}
+    }, 15000); // Poll every 15 seconds
+
+    // Subscribe to realtime updates for notifications
+    if (currentUser && import.meta.env.VITE_SUPABASE_URL) {
+      const channel = supabase
+        .channel('public:notifications')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'notifications' },
+          (payload) => {
+            const newNotif = payload.new;
+            if (newNotif.date > lastNotifDate) {
+              lastNotifDate = newNotif.date;
+            }
+            const isTargeted = 
+              newNotif.target_type === 'all' ||
+              (newNotif.target_type === currentUser.role) ||
+              (newNotif.target_id === currentUser.id);
+
+            if (isTargeted && newNotif.sender_id !== currentUser.id) {
+              const mappedNotif = {
+                ...newNotif,
+                targetType: newNotif.target_type,
+                targetId: newNotif.target_id,
+                senderId: newNotif.sender_id,
+              };
+              
+              setNotifications((prev) => {
+                 if (prev.find(n => n.id === mappedNotif.id)) return prev;
+                 return [mappedNotif, ...prev];
+              });
+
+              if ('Notification' in window && Notification.permission === 'granted') {
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg) {
+                      reg.showNotification(mappedNotif.title, {
+                        body: mappedNotif.message,
+                        icon: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png'
+                      });
+                    } else {
+                      try { new Notification(mappedNotif.title, { body: mappedNotif.message, icon: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png' }); } catch(e){}
+                    }
+                  });
+                } else {
+                  try { new Notification(mappedNotif.title, { body: mappedNotif.message, icon: 'https://exyrlwugzdvqfiafvfcv.supabase.co/storage/v1/object/public/images/Icon%20193X193.png' }); } catch(e){}
+                }
+              }
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+        clearInterval(pollInterval);
+      };
+    }
+
+    return () => clearInterval(pollInterval);
   }, [currentUser]);
 
   // Handle session check on mount
