@@ -17,6 +17,7 @@ const OrangTuaDashboard = React.lazy(() => import('./components/portal/OrangTuaD
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { InstallPWA } from './components/InstallPWA';
 
 // Public Components
 import { Navbar } from './components/public/Navbar';
@@ -116,6 +117,7 @@ const MainAppContent: React.FC = () => {
   return (
     <ErrorBoundary>
       <Router>
+      <InstallPWA />
         <ScrollToTop />
         <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div></div>}>
         <Routes>
