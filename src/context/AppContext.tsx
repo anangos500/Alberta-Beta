@@ -220,7 +220,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           });
           setReports(mappedReports as any);
         }
-        if (jadwalRes.data) setJadwalList(jadwalRes.data as any);
+        if (jadwalRes.data) {
+          const mappedJadwals = jadwalRes.data.map((j: any) => {
+            let parsed: any = {};
+            try { parsed = JSON.parse(j.ruangan || '{}'); } catch(e) {}
+            return {
+              id: j.id,
+              tentorId: j.tentor_id,
+              hari: j.hari,
+              jamMulai: parsed.jamMulai || (j.jam ? j.jam.split(' - ')[0] : '15:00'),
+              jamSelesai: parsed.jamSelesai || (j.jam ? j.jam.split(' - ')[1] : '16:30'),
+              mataPelajaran: parsed.mataPelajaran || 'Umum',
+              ruangan: parsed.ruangan !== undefined ? parsed.ruangan : (j.ruangan && !j.ruangan.startsWith('{') ? j.ruangan : ''),
+              studentIds: parsed.studentIds || (j.student_id ? [j.student_id] : []),
+            };
+          });
+          setJadwalList(mappedJadwals as any);
+        }
         if (notifRes.data) {
           const mappedNotifs = notifRes.data.map((n: any) => ({
             ...n,
@@ -398,14 +414,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateStudent = async (updatedStudent: any) => {
     if (!import.meta.env.VITE_SUPABASE_URL) return;
+    // Pastikan UUID valid atau set null jika menggunakan ID dummy (seperti T101)
+    const isValidUUID = (id) => id && id.length > 20;
     const dbUpdateData = {
       nama: updatedStudent.nama,
       jenjang: updatedStudent.jenjang,
       kelas: updatedStudent.kelas,
       sekolah: updatedStudent.sekolah,
       status: updatedStudent.status,
-      tentor_id: updatedStudent.tentorId || null,
-      parent_id: updatedStudent.parentId || null
+      tentor_id: isValidUUID(updatedStudent.tentorId) ? updatedStudent.tentorId : null,
+      parent_id: isValidUUID(updatedStudent.parentId) ? updatedStudent.parentId : null
     };
     const { error } = await supabase.from('students').update(dbUpdateData).eq('id', updatedStudent.id);
     if (error) {
@@ -588,13 +606,49 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const addJadwal = async (jadwalData: any) => {
     if (!import.meta.env.VITE_SUPABASE_URL) return;
-    const { data, error } = await supabase.from('jadwals').insert([jadwalData]).select();
-    if (data && !error) setJadwalList((prev) => [...prev, data[0] as any]);
+    const dbData = {
+      student_id: jadwalData.studentIds[0],
+      tentor_id: jadwalData.tentorId,
+      hari: jadwalData.hari,
+      jam: `${jadwalData.jamMulai} - ${jadwalData.jamSelesai}`,
+      ruangan: JSON.stringify({
+        studentIds: jadwalData.studentIds,
+        mataPelajaran: jadwalData.mataPelajaran,
+        ruangan: jadwalData.ruangan,
+        jamMulai: jadwalData.jamMulai,
+        jamSelesai: jadwalData.jamSelesai
+      })
+    };
+    const { data, error } = await supabase.from('jadwals').insert([dbData]).select();
+    if (error) {
+      console.error("Add jadwal error:", error);
+      alert("Gagal menambah jadwal");
+    }
+    if (data && !error) {
+      setJadwalList((prev) => [...prev, { ...jadwalData, id: data[0].id }]);
+    }
   };
 
   const updateJadwal = async (updatedJadwal: any) => {
     if (!import.meta.env.VITE_SUPABASE_URL) return;
-    const { error } = await supabase.from('jadwals').update(updatedJadwal).eq('id', updatedJadwal.id);
+    const dbData = {
+      student_id: updatedJadwal.studentIds[0],
+      tentor_id: updatedJadwal.tentorId,
+      hari: updatedJadwal.hari,
+      jam: `${updatedJadwal.jamMulai} - ${updatedJadwal.jamSelesai}`,
+      ruangan: JSON.stringify({
+        studentIds: updatedJadwal.studentIds,
+        mataPelajaran: updatedJadwal.mataPelajaran,
+        ruangan: updatedJadwal.ruangan,
+        jamMulai: updatedJadwal.jamMulai,
+        jamSelesai: updatedJadwal.jamSelesai
+      })
+    };
+    const { error } = await supabase.from('jadwals').update(dbData).eq('id', updatedJadwal.id);
+    if (error) {
+      console.error("Update jadwal error:", error);
+      alert("Gagal update jadwal");
+    }
     if (!error) setJadwalList((prev) => prev.map((j) => (j.id === updatedJadwal.id ? updatedJadwal : j)));
   };
 
