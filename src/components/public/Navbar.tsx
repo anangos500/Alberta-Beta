@@ -10,8 +10,8 @@ export const Navbar: React.FC = () => {
 
   const navItems = [
     { label: 'Beranda', path: '/' },
-    { label: 'Tentang Alberta', path: '/tentang' },
-    { label: 'Program TK, SD & SMP', path: '/program' },
+    { label: 'Tentang', path: '/tentang' },
+    { label: 'Program', path: '/program' },
     { label: 'Tentor', path: '/tentor' },
     { label: 'Galeri', path: '/galeri' },
     { label: 'FAQ', path: '/faq' },
