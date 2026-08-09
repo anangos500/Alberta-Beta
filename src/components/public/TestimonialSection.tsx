@@ -1,7 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { Star } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 
 export const TestimonialSection: React.FC = () => {
+  const { publicContent } = useApp();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export const TestimonialSection: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const testimonials = [
+  const defaultTestimonials = [
     {
       id: 1,
       name: 'Ibu Ratna Dewi',
@@ -63,18 +65,17 @@ export const TestimonialSection: React.FC = () => {
           ref={scrollRef}
           className="flex md:grid overflow-x-auto md:overflow-visible pb-8 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 md:grid-cols-3 gap-6 snap-x snap-mandatory hide-scrollbar scroll-smooth"
         >
-          {testimonials.map((t) => (
+          {(publicContent?.testimonials?.length > 0 ? publicContent.testimonials : defaultTestimonials).map((t: any) => (
             <div key={t.id} className="w-[85vw] sm:w-[350px] md:w-auto md:min-w-0 bg-white rounded-[2rem] p-6 sm:p-8 shadow-xl flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 snap-center shrink-0">
               <div className="space-y-6">
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <Star key={s} className={`w-5 h-5 ${s <= (t.ratingValue || 5) ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200 fill-slate-50'}`} />
                   ))}
                 </div>
                 <p className="text-slate-600 italic">"{t.text}"</p>
               </div>
               <div className="flex items-center gap-4 mt-8 pt-6 border-t border-slate-100">
-                <img src={t.avatar || undefined} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-purple-100" />
                 <div>
                   <h4 className="font-bold text-slate-900">{t.name}</h4>
                   <p className="text-xs text-purple-600 font-semibold">{t.role}</p>
