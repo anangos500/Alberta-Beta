@@ -1,57 +1,54 @@
 import { WeeklyReport } from '../types';
-import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 
 export const downloadReportsZip = async (reports: WeeklyReport[], filename: string) => {
-  const zip = new JSZip();
+  const excelData = reports.map(r => ({
+    'Minggu Ke': r.mingguKe,
+    'Tanggal': r.tanggalPembelajaran,
+    'Siswa': r.studentNama,
+    'Kelas': r.studentKelas,
+    'Tentor': r.tentorNama,
+    'Mata Pelajaran': r.mataPelajaran,
+    'Materi': r.materi,
+    'Pemahaman': r.ratings.pemahamanMateri,
+    'Kemampuan Soal': r.ratings.kemampuanSoal,
+    'Keaktifan': r.ratings.keaktifan,
+    'Kemandirian': r.ratings.kemandirian,
+    'Interaksi': r.ratings.interaksi,
+    'Sikap': r.ratings.sikap,
+    'Keterampilan Catat': r.ratings.keterampilanCatat,
+    'Target Berikutnya': r.targetBerikutnya,
+    'Saran Tentor': r.saranTentor
+  }));
 
-  const csvHeader = [
-    'Minggu Ke',
-    'Tanggal',
-    'Siswa',
-    'Kelas',
-    'Tentor',
-    'Mata Pelajaran',
-    'Materi',
-    'Pemahaman',
-    'Kemampuan Soal',
-    'Keaktifan',
-    'Kemandirian',
-    'Interaksi',
-    'Sikap',
-    'Keterampilan Catat',
-    'Target Berikutnya',
-    'Saran Tentor'
-  ].join(',');
+  const ws = XLSX.utils.json_to_sheet(excelData);
+  
+  // Adjust column widths
+  const colWidths = [
+    { wch: 10 }, // Minggu Ke
+    { wch: 15 }, // Tanggal
+    { wch: 20 }, // Siswa
+    { wch: 10 }, // Kelas
+    { wch: 20 }, // Tentor
+    { wch: 25 }, // Mata Pelajaran
+    { wch: 30 }, // Materi
+    { wch: 15 }, // Pemahaman
+    { wch: 15 }, // Kemampuan
+    { wch: 15 }, // Keaktifan
+    { wch: 15 }, // Kemandirian
+    { wch: 15 }, // Interaksi
+    { wch: 15 }, // Sikap
+    { wch: 15 }, // Keterampilan
+    { wch: 30 }, // Target
+    { wch: 35 }  // Saran
+  ];
+  ws['!cols'] = colWidths;
 
-  const csvRows = reports.map(r => {
-    return [
-      r.mingguKe,
-      r.tanggalPembelajaran,
-      r.studentNama,
-      r.studentKelas,
-      r.tentorNama,
-      `"${r.mataPelajaran}"`,
-      `"${r.materi}"`,
-      `"${r.ratings.pemahamanMateri}"`,
-      `"${r.ratings.kemampuanSoal}"`,
-      `"${r.ratings.keaktifan}"`,
-      `"${r.ratings.kemandirian}"`,
-      `"${r.ratings.interaksi}"`,
-      `"${r.ratings.sikap}"`,
-      `"${r.ratings.keterampilanCatat}"`,
-      `"${r.targetBerikutnya}"`,
-      `"${r.saranTentor}"`
-    ].join(',');
-  });
-
-  const csvContent = [csvHeader, ...csvRows].join('\n');
-  zip.file('laporan.csv', csvContent);
-
-  reports.forEach(r => {
-    zip.file(`laporan_${r.studentNama.replace(/[^a-z0-9]/gi, '_')}_minggu_${r.mingguKe}.json`, JSON.stringify(r, null, 2));
-  });
-
-  const content = await zip.generateAsync({ type: 'blob' });
-  saveAs(content, `${filename}.zip`);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Laporan");
+  
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const content = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  saveAs(content, `${filename}.xlsx`);
 };
