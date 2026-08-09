@@ -13,6 +13,9 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         injectRegister: 'auto',
         includeAssets: [],
+        workbox: {
+          importScripts: ['/push-sw.js']
+        },
         manifest: {
           name: 'Bimbel Alberta',
           short_name: 'Alberta',
