@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, UserPlus, Sparkles } from 'lucide-react';
+import { X, Save, UserPlus, Sparkles, CheckCircle, MessageSquare } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Student, Jenjang } from '../../types';
 import { ConfirmModal } from './ConfirmModal';
@@ -32,6 +32,8 @@ export const StudentManagementModal: React.FC<Props> = ({
   
   const [tentorId, setTentorId] = useState('');
   const [status, setStatus] = useState<'aktif' | 'cuti'>('aktif');
+  const [showSuccessOptions, setShowSuccessOptions] = useState(false);
+  const [savedStudentData, setSavedStudentData] = useState<any>(null);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   useEffect(() => {
@@ -53,10 +55,66 @@ export const StudentManagementModal: React.FC<Props> = ({
       setNoHpOrangTua('');
       setTentorId(tentors[0]?.id || '');
       setStatus('aktif');
+      setShowSuccessOptions(false);
+      setSavedStudentData(null);
     }
   }, [editingStudent, isOpen]);
 
   if (!isOpen) return null;
+
+  if (showSuccessOptions && savedStudentData) {
+    return (
+      <div className="fixed inset-0 z-[60] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto" onClick={onClose}>
+        <div className="bg-white rounded-[2rem] max-w-md w-full p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+          <div className="text-center space-y-4">
+             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+               <CheckCircle className="w-8 h-8" />
+             </div>
+             <h3 className="text-2xl font-bold text-stone-800">Data Siswa Tersimpan!</h3>
+             <p className="text-sm text-stone-500">
+               Kirimkan informasi login portal ke WhatsApp orang tua?
+             </p>
+
+             <div className="bg-stone-50 p-4 rounded-xl text-left space-y-2 mt-4 text-sm text-stone-700">
+                <p><strong>Nama Anak:</strong> {savedStudentData.namaAnak} (Jenjang {savedStudentData.jenjang} Kelas {savedStudentData.kelas})</p>
+                <p><strong>Login Portal Ortu:</strong></p>
+                <p>Email: <span className="font-medium text-stone-900">{savedStudentData.emailOrtu}</span></p>
+                <p>Password: <span className="font-medium text-stone-900">{savedStudentData.passwordOrtu}</span></p>
+                <p>Link: <span className="text-teal-600">https://alberta-beta.pages.dev</span></p>
+             </div>
+
+             <div className="pt-4 flex flex-col gap-3">
+               <button
+                 type="button"
+                 className="w-full py-3 px-4 rounded-xl font-bold text-white bg-green-500 hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                 onClick={() => {
+                    let formattedPhone = savedStudentData.noHpOrtu;
+                    if (formattedPhone.startsWith('0')) {
+                      formattedPhone = '62' + formattedPhone.slice(1);
+                    }
+                    formattedPhone = formattedPhone.replace(/\D/g, '');
+                    const text = `Halo Bapak/Ibu ${savedStudentData.namaOrtu},%0A%0AData pendaftaran ananda *${savedStudentData.namaAnak}* (Jenjang ${savedStudentData.jenjang} Kelas ${savedStudentData.kelas}) telah berhasil disimpan di Bimbel Alberta.%0A%0ABerikut adalah informasi untuk login ke Portal Orang Tua:%0A%0A*Link Login:* https://alberta-beta.pages.dev%0A*Email:* ${savedStudentData.emailOrtu}%0A*Password:* ${savedStudentData.passwordOrtu}%0A%0AMohon simpan informasi ini baik-baik. Anda dapat memantau perkembangan belajar ananda melalui portal tersebut.%0A%0ATerima kasih,%0AAdmin Bimbel Alberta`;
+                    window.open(`https://wa.me/${formattedPhone}?text=${text}`, '_blank');
+                    onClose();
+                 }}
+               >
+                 <MessageSquare className="w-5 h-5" />
+                 Kirim ke WhatsApp Ortu
+               </button>
+               <button
+                 type="button"
+                 className="w-full py-3 px-4 rounded-xl font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors"
+                 onClick={onClose}
+               >
+                 Tutup
+               </button>
+             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +138,7 @@ export const StudentManagementModal: React.FC<Props> = ({
         nama,
         jenjang,
         kelas: Number(kelas),
-        sekolah: sekolah || (jenjang === 'SD' ? 'SDN Dabasah 1 Bondowoso' : 'SMPN 1 Bondowoso'),
+        sekolah: sekolah || (jenjang === 'TK' ? 'TK Bhayangkari' : jenjang === 'SD' ? 'SDN Dabasah 1 Bondowoso' : 'SMPN 1 Bondowoso'),
         namaOrangTua,
         noHpOrangTua,
         parentId: selectedParentId,
@@ -94,6 +152,18 @@ export const StudentManagementModal: React.FC<Props> = ({
         parentEmail: generatedParentEmail,
         parentPassword
       } as any);
+      
+      setSavedStudentData({
+        namaAnak: nama,
+        namaOrtu: namaOrangTua,
+        jenjang,
+        kelas,
+        emailOrtu: generatedParentEmail,
+        passwordOrtu: parentPassword,
+        noHpOrtu: noHpOrangTua
+      });
+      setShowSuccessOptions(true);
+      return; // Do not close modal yet
     }
     onClose();
   };
@@ -157,7 +227,7 @@ export const StudentManagementModal: React.FC<Props> = ({
             {editingStudent ? 'Edit Data Siswa' : 'Tambah Siswa Baru Bimbel'}
           </h3>
           <p className="text-xs text-stone-500">
-            Khusus jenjang SD (Kelas 1-6) dan SMP (Kelas 7-9) di Bimbel Alberta.
+            Khusus jenjang TK, SD (Kelas 1-6) dan SMP (Kelas 7-9) di Bimbel Alberta.
           </p>
         </div>
 
@@ -189,11 +259,13 @@ export const StudentManagementModal: React.FC<Props> = ({
                 onChange={(e) => {
                   const newJ = e.target.value as Jenjang;
                   setJenjang(newJ);
-                  if (newJ === 'SD' && kelas > 6) setKelas(5);
-                  if (newJ === 'SMP' && kelas < 7) setKelas(8);
+                  if (newJ === 'TK') setKelas(0);
+                  else if (newJ === 'SD' && (kelas < 1 || kelas > 6)) setKelas(5);
+                  else if (newJ === 'SMP' && kelas < 7) setKelas(8);
                 }}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
               >
+                <option value="TK">Jenjang TK</option>
                 <option value="SD">Jenjang SD</option>
                 <option value="SMP">Jenjang SMP</option>
               </select>
@@ -208,7 +280,11 @@ export const StudentManagementModal: React.FC<Props> = ({
                 onChange={(e) => setKelas(Number(e.target.value))}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
               >
-                {jenjang === 'SD' ? (
+                {jenjang === 'TK' ? (
+                  <>
+                    <option value={0}>TK</option>
+                  </>
+                ) : jenjang === 'SD' ? (
                   <>
                     <option value={1}>Kelas 1 SD</option>
                     <option value={2}>Kelas 2 SD</option>
@@ -234,7 +310,7 @@ export const StudentManagementModal: React.FC<Props> = ({
             </label>
             <input
               type="text"
-              placeholder="Contoh: SDN Dabasah 1 Bondowoso / SMPN 1 Bondowoso"
+              placeholder="Contoh: TK / SDN Dabasah 1 / SMPN 1 Bondowoso"
               value={sekolah}
               onChange={(e) => setSekolah(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
@@ -332,11 +408,25 @@ export const StudentManagementModal: React.FC<Props> = ({
                       />
                   </div>
                     <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1">
-                        Password Login Ortu *
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-bold text-stone-700">
+                          Password Login Ortu *
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (namaOrangTua) {
+                              const baseName = namaOrangTua.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                              setParentPassword(`${baseName}123`);
+                            }
+                          }}
+                          className="text-[10px] text-teal-600 hover:text-teal-700 font-bold bg-teal-50 hover:bg-teal-100 px-2 py-0.5 rounded-md transition-colors"
+                        >
+                          Generate Default
+                        </button>
+                      </div>
                       <input
-                        type="password"
+                        type="text"
                         required
                         minLength={6}
                         placeholder="Minimal 6 karakter"
