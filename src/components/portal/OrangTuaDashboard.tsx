@@ -19,6 +19,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { WeeklyReport } from '../../types';
 import { ReportDetailModal } from './ReportDetailModal';
+import { OrangTuaUlasanTab } from './OrangTuaUlasanTab';
 
 export const OrangTuaDashboard: React.FC = () => {
   const { students, reports, notifications, selectedChildId, setSelectedChildId, currentUser, portalTab, setPortalTab } = useApp();
@@ -490,6 +491,11 @@ export const OrangTuaDashboard: React.FC = () => {
         </div>
       )}
 
+      {/* ULASAN TAB */}
+      {portalTab === 'ulasan' && (
+        <OrangTuaUlasanTab />
+      )}
+      
       {/* RINGKASAN BULANAN TAB */}
       {portalTab === 'evaluasi' && (
         <div className="bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-sm space-y-8">

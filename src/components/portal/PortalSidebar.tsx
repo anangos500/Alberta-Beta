@@ -5,7 +5,7 @@ import {
   Users, 
   FileText, 
   PlusCircle, 
-  TrendingUp, 
+  TrendingUp, Star, 
   Calendar, 
   UserCheck, 
   Bell,
@@ -111,6 +111,17 @@ export const PortalSidebar: React.FC = () => {
               <FileText className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Semua Laporan Mingguan</span>
             </button>
+            <button
+              onClick={() => setPortalTab('ulasan')}
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
+                portalTab === 'ulasan'
+                  ? 'bg-purple-100 text-purple-700 shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+            >
+              <Star className="w-4 h-4 shrink-0" />
+              <span className="leading-tight">Ulasan Orang Tua</span>
+            </button>
           </>
         );
 
@@ -204,6 +215,17 @@ export const PortalSidebar: React.FC = () => {
             >
               <TrendingUp className="w-4 h-4 shrink-0" />
               <span className="leading-tight">Grafik & Ringkasan</span>
+            </button>
+            <button
+              onClick={() => setPortalTab('ulasan')}
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
+                portalTab === 'ulasan'
+                  ? 'bg-emerald-100 text-emerald-700 shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+            >
+              <Star className="w-4 h-4 shrink-0" />
+              <span className="leading-tight">Beri Ulasan</span>
             </button>
           </>
         );
