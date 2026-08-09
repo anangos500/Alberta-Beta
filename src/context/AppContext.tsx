@@ -26,6 +26,7 @@ interface AppContextType {
   reports: WeeklyReport[];
   jadwalList: Jadwal[];
   notifications: Notification[];
+  ratings: any[];
   
   // Selected child for Orang Tua view
   selectedChildId: string;
@@ -83,6 +84,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [parents, setParents] = useState<Parent[]>([]);
   const [jadwalList, setJadwalList] = useState<Jadwal[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [ratings, setRatings] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [selectedChildId, setSelectedChildId] = useState<string>('');
@@ -140,13 +142,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!currentUser || !import.meta.env.VITE_SUPABASE_URL) return;
 
       try {
-        const [studentsRes, tentorsRes, parentsRes, reportsRes, jadwalRes, notifRes] = await Promise.all([
+        const [studentsRes, tentorsRes, parentsRes, reportsRes, jadwalRes, notifRes, ratingsRes] = await Promise.all([
           supabase.from("students").select("*"),
           supabase.from('profiles').select('*').eq('role', 'tentor'),
           supabase.from('profiles').select('*').eq('role', 'orang_tua'),
           supabase.from('weekly_reports').select('*'),
           supabase.from('jadwals').select('*'),
-          supabase.from('notifications').select('*').order('date', { ascending: false })
+          supabase.from('notifications').select('*').order('date', { ascending: false }),
+          supabase.from('ratings').select('*')
         ]);
 
         if (studentsRes.data) {
@@ -245,6 +248,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             senderId: n.sender_id,
           }));
           setNotifications(mappedNotifs as any);
+        }
+        if (ratingsRes && ratingsRes.data) {
+          setRatings(ratingsRes.data);
         }
       } catch (e) {
         console.error('Error fetching data:', e);
@@ -722,6 +728,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateJadwal,
         deleteJadwal,
         notifications,
+        ratings,
         addNotification,
         deleteNotification,
         isLoginModalOpen,

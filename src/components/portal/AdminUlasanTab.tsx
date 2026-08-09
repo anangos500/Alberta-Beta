@@ -4,24 +4,22 @@ import { Star, Settings, MessageSquare, CheckCircle, Plus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export const AdminUlasanTab: React.FC = () => {
-  const { publicContent, updatePublicContent, notifications } = useApp();
+  const { publicContent, updatePublicContent, ratings } = useApp();
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedToPublish, setSelectedToPublish] = useState<string[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>(publicContent?.testimonials || []);
 
   const isFormEnabled = publicContent?.isRatingFormEnabled ?? false;
 
-  // Get ratings from notifications
-  const ratingSubmissions = notifications
-    .filter(n => n.title === 'RATING_SUBMISSION')
-    .map(n => {
-      try {
-        return { ...n, payload: JSON.parse(n.message) };
-      } catch {
-        return { ...n, payload: null };
-      }
-    })
-    .filter(n => n.payload);
+  const ratingSubmissions = ratings.map(r => ({
+    id: r.id,
+    payload: {
+      parentName: r.parent_name,
+      rating: r.rating,
+      comment: r.comment
+    },
+    date: r.created_at
+  }));
 
   useEffect(() => {
     setTestimonials(publicContent?.testimonials || []);

@@ -75,7 +75,7 @@ export const TestimonialSection: React.FC = () => {
                 </div>
                 <p className="text-slate-600 italic">"{t.text}"</p>
               </div>
-              <div className="flex items-center gap-4 mt-8 pt-6 border-t border-slate-100">
+              <div className="mt-8 pt-6 border-t border-slate-100">
                 <div>
                   <h4 className="font-bold text-slate-900">{t.name}</h4>
                   <p className="text-xs text-purple-600 font-semibold">{t.role}</p>

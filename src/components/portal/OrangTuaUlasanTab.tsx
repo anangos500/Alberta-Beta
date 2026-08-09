@@ -4,7 +4,7 @@ import { Star, Send, CheckCircle2, Edit3 } from 'lucide-react';
 import { supabase } from '../../lib/supabase'; 
 
 export const OrangTuaUlasanTab: React.FC = () => {
-  const { currentUser, publicContent, notifications } = useApp();
+  const { currentUser, publicContent, ratings } = useApp();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,15 +13,12 @@ export const OrangTuaUlasanTab: React.FC = () => {
   // Check if admin has enabled the rating form
   const isEnabled = publicContent?.isRatingFormEnabled ?? false;
 
-  const existingSubmission = notifications.find(n => n.title === 'RATING_SUBMISSION' && n.senderId === currentUser?.id);
+  const existingSubmission = ratings.find(r => r.parent_id === currentUser?.id);
   
   useEffect(() => {
     if (existingSubmission && !isEditing) {
-      try {
-        const payload = JSON.parse(existingSubmission.message);
-        setRating(payload.rating || 5);
-        setComment(payload.comment || '');
-      } catch(e) {}
+      setRating(existingSubmission.rating || 5);
+      setComment(existingSubmission.comment || '');
     }
   }, [existingSubmission, isEditing]);
 
@@ -42,17 +39,18 @@ export const OrangTuaUlasanTab: React.FC = () => {
       };
       
       if (existingSubmission) {
-        const { error } = await supabase.from('notifications').update({
-          message: JSON.stringify(payload),
-          date: new Date().toISOString()
+        const { error } = await supabase.from('ratings').update({
+          rating,
+          comment,
+          parent_name: currentUser?.nama
         }).eq('id', existingSubmission.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('notifications').insert([{
-          title: 'RATING_SUBMISSION',
-          message: JSON.stringify(payload),
-          target_type: 'all',
-          sender_id: currentUser?.id
+        const { error } = await supabase.from('ratings').insert([{
+          parent_id: currentUser?.id,
+          parent_name: currentUser?.nama,
+          rating,
+          comment
         }]);
         if (error) throw error;
       }
@@ -84,13 +82,8 @@ export const OrangTuaUlasanTab: React.FC = () => {
   }
 
   if (existingSubmission && !isEditing) {
-    let savedRating = 5;
-    let savedComment = '';
-    try {
-      const payload = JSON.parse(existingSubmission.message);
-      savedRating = payload.rating || 5;
-      savedComment = payload.comment || '';
-    } catch(e) {}
+    const savedRating = existingSubmission.rating || 5;
+    const savedComment = existingSubmission.comment || '';
 
     const canEdit = savedRating < 5 && isEnabled;
 
@@ -201,11 +194,8 @@ export const OrangTuaUlasanTab: React.FC = () => {
               onClick={() => {
                 setIsEditing(false);
                 // reset to saved
-                try {
-                  const payload = JSON.parse(existingSubmission.message);
-                  setRating(payload.rating || 5);
-                  setComment(payload.comment || '');
-                } catch(e) {}
+                setRating(existingSubmission.rating || 5);
+                setComment(existingSubmission.comment || '');
               }}
               disabled={isSubmitting}
               className="w-full sm:w-auto px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
