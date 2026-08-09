@@ -240,11 +240,25 @@ export const TentorManagementModal: React.FC<Props> = ({ onClose, onSubmit, edit
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  Password Login *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-stone-700">
+                    Password Login *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (nama) {
+                        const baseName = nama.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                        setPassword(`${baseName}123`);
+                      }
+                    }}
+                    className="text-[10px] text-purple-600 hover:text-purple-700 font-bold bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-md transition-colors"
+                  >
+                    Generate Default
+                  </button>
+                </div>
                 <input
-                  type="password"
+                  type="text"
                   required
                   placeholder="Minimal 6 karakter"
                   value={password}

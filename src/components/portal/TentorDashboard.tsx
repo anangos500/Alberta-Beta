@@ -15,7 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { downloadReportsZip } from '../../utils/exportZip';
+import { downloadReportsExcel } from '../../utils/exportExcel';
 import { Student, WeeklyReport } from '../../types';
 import { WeeklyReportFormModal } from './WeeklyReportFormModal';
 import { ReportDetailModal } from './ReportDetailModal';
@@ -362,10 +362,10 @@ export const TentorDashboard: React.FC = () => {
               </div>
               <button
                 className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-slate-900 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
-                onClick={() => downloadReportsZip(myReports.filter(r => r.mingguKe === Number(week)), `Arsip_Laporan_Minggu_${week}`)}
+                onClick={() => downloadReportsExcel(myReports.filter(r => r.mingguKe === Number(week)), `Arsip_Laporan_Minggu_${week}`)}
               >
                 <Download className="w-4 h-4" />
-                Download Arsip (ZIP)
+                Download Arsip (Excel)
               </button>
             </div>
           ))}

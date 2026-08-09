@@ -15,10 +15,13 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ConfirmModal } from './ConfirmModal';
+import { ChangePasswordModal } from './ChangePasswordModal';
+import { KeyRound } from 'lucide-react';
 import { useState } from 'react';
 
 export const PortalSidebar: React.FC = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const { currentUser, portalTab, setPortalTab, logout } = useApp();
 
   if (!currentUser) return null;
@@ -277,6 +280,13 @@ export const PortalSidebar: React.FC = () => {
         {/* Footer Area with Logout */}
         <div className="pt-4 mt-4 border-t border-slate-100 space-y-3">
           <button
+            onClick={() => setShowChangePassword(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            <KeyRound className="w-4 h-4" />
+            <span className="text-sm">Ganti Password</span>
+          </button>
+          <button
             onClick={() => setShowLogoutConfirm(true)}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 transition-colors cursor-pointer"
           >
@@ -290,6 +300,10 @@ export const PortalSidebar: React.FC = () => {
         </div>
       </aside>
 
+      <ChangePasswordModal 
+        isOpen={showChangePassword} 
+        onClose={() => setShowChangePassword(false)} 
+      />
       <ConfirmModal
         isOpen={showLogoutConfirm}
         onConfirm={() => {
