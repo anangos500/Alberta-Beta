@@ -108,6 +108,7 @@ export interface Jadwal {
   jamSelesai: string;
   mataPelajaran: string;
   ruangan?: string;
+  mingguKe?: number;
 }
 
 export interface Notification {
@@ -131,4 +132,29 @@ export interface Parent {
   nama: string;
   noHp: string;
   foto?: string;
+}
+
+// Jadwal Template Types
+export type TemplateProgramTipe = 'TK' | 'SD 1-2' | 'SD 3-6' | 'SMP 7A' | 'SMP 7B' | 'SMP 8' | 'SMP 9';
+export type TemplateSistemPembelajaran = 'Rotasi' | 'Blok';
+
+export interface TemplateMingguPola {
+  senin?: string;
+  selasa?: string;
+  rabu?: string;
+  kamis?: string;
+  jumat?: string;
+  sabtu?: string;
+}
+
+export interface TemplateMingguanPola {
+  [mingguKe: string]: TemplateMingguPola; // keys: '1', '2', '3', '4'
+}
+
+export interface TemplateJadwal {
+  id: string;
+  program: TemplateProgramTipe;
+  sistem: TemplateSistemPembelajaran;
+  bulanBerlaku: number[]; // e.g. [1, 2, 4, 6]
+  mingguan: TemplateMingguanPola;
 }

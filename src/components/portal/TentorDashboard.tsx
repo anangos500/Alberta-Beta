@@ -48,9 +48,11 @@ export const TentorDashboard: React.FC = () => {
     (r) => r.tentorId === currentUser?.id || true // Using true as a fallback here? Actually let's just use myStudents to filter reports later if needed.
   );
 
-  const currentWeek = Math.ceil(new Date().getDate() / 7); // Calculate current week of the month
+  const d = new Date();
+  const currentMonthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const currentWeek = Math.ceil(d.getDate() / 7); // Calculate current week of the month
   const studentsWithoutReport = myStudents.filter(s => 
-    !myReports.find(r => r.studentId === s.id && r.mingguKe === currentWeek)
+    !myReports.find(r => r.studentId === s.id && r.mingguKe === currentWeek && r.tanggalPembelajaran === currentMonthStr)
   ).length;
 
   const today = new Date().toLocaleDateString('id-ID', { weekday: 'long' });
@@ -253,11 +255,11 @@ export const TentorDashboard: React.FC = () => {
             {myStudents.map((student) => {
               // Check if report for currentWeek already exists for this student
               const hasLatestReport = myReports.some(
-                (r) => r.studentId === student.id && r.mingguKe === currentWeek
+                (r) => r.studentId === student.id && r.mingguKe === currentWeek && r.tanggalPembelajaran === currentMonthStr
               );
 
               const missedWeeks = Array.from({ length: 5 }, (_, i) => i + 1)
-                .filter(week => week !== currentWeek && !myReports.some(r => r.studentId === student.id && r.mingguKe === week));
+                .filter(week => week !== currentWeek && !myReports.some(r => r.studentId === student.id && r.mingguKe === week && r.tanggalPembelajaran === currentMonthStr));
 
               return (
                 <div

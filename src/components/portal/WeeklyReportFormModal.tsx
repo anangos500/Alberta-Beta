@@ -31,18 +31,18 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [mingguKe, setMingguKe] = useState<number>(preselectedWeek || Math.ceil(new Date().getDate() / 7));
-
-  const filteredStudents = activeStudents.filter((s) => {
-    if (editingReport && editingReport.studentId === s.id) return true;
-    return !reports.some(
-      (r) => r.studentId === s.id && r.mingguKe === mingguKe && r.tentorId === currentUser?.id
-    );
-  });
-
   const [bulan, setBulan] = useState<string>(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
+
+  const filteredStudents = activeStudents.filter((s) => {
+    if (editingReport && editingReport.studentId === s.id) return true;
+    return !reports.some(
+      (r) => r.studentId === s.id && r.mingguKe === mingguKe && r.tanggalPembelajaran === bulan && r.tentorId === currentUser?.id
+    );
+  });
+
   const [tanggal, setTanggal] = useState<string>(new Date().toISOString().split('T')[0]);
   const [hari, setHari] = useState<string>('Selasa');
   const [mataPelajaran, setMataPelajaran] = useState<string>('Matematika & IPA');
@@ -178,11 +178,6 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       setPhotos(editingReport.dokumentasiFoto || []);
     } else if (preselectedStudent) {
       setSelectedStudentId(preselectedStudent.id);
-      if (preselectedStudent.jenjang === 'SD') {
-        setMataPelajaran('Matematika & Pendampingan PR SD');
-      } else {
-        setMataPelajaran('Fisika & Matematika SMP');
-      }
     } else if (filteredStudents.length > 0) {
       setSelectedStudentId(filteredStudents[0].id);
     }
@@ -202,7 +197,50 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
         setSelectedStudentId('');
       }
     }
-  }, [mingguKe, filteredStudents.length]);
+  }, [mingguKe, bulan, filteredStudents.length]);
+
+  useEffect(() => {
+    if (!editingReport && selectedStudentId && currentUser) {
+      // Cari jadwal untuk siswa ini dan tentor ini
+      const studentJadwals = jadwalList.filter(
+        j => j.tentorId === currentUser.id && j.studentIds.includes(selectedStudentId)
+      );
+      
+      const uniqueMapels = Array.from(new Set(studentJadwals.map(j => j.mataPelajaran))).filter(Boolean);
+      
+      if (uniqueMapels.length > 0) {
+        setRatings(prev => ({
+          ...prev,
+          subjects: uniqueMapels.map(mapel => ({
+            mataPelajaran: mapel,
+            pemahamanMateri: 'Sangat Baik',
+            kemampuanSoal: 'Tepat dan Cepat',
+            keaktifan: 'Sangat Aktif',
+            kemandirian: 'Sangat Mandiri',
+            interaksi: 'Sangat Baik',
+            sikap: 'Sangat Disiplin',
+            keterampilanCatat: 'Cepat, Rapi, dan Lengkap',
+          }))
+        }));
+      } else {
+        // Fallback jika tidak ada jadwal (misal data lama atau tes)
+        const student = students.find(s => s.id === selectedStudentId);
+        setRatings(prev => ({
+          ...prev,
+          subjects: [{
+            mataPelajaran: student?.jenjang === 'SD' ? 'Matematika & Pendampingan PR SD' : 'Fisika & Matematika SMP',
+            pemahamanMateri: 'Sangat Baik',
+            kemampuanSoal: 'Tepat dan Cepat',
+            keaktifan: 'Sangat Aktif',
+            kemandirian: 'Sangat Mandiri',
+            interaksi: 'Sangat Baik',
+            sikap: 'Sangat Disiplin',
+            keterampilanCatat: 'Cepat, Rapi, dan Lengkap',
+          }]
+        }));
+      }
+    }
+  }, [selectedStudentId, editingReport, currentUser, jadwalList, students]);
 
   if (!isOpen) return null;
 
@@ -454,7 +492,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
                       </button>
                     )}
                     
-                    <div className="mb-2 bg-blue-100/50 -mt-3 -mx-3 p-3 rounded-t-xl border-b border-blue-100">
+                    <div className="mb-2 bg-blue-100/50 -mt-3 -mx-3 p-3 rounded-t-xl border-b border-blue-100 flex flex-col items-center gap-1">
                       <input
                         type="text"
                         required
@@ -463,6 +501,9 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
                         onChange={(e) => handleSubjectChange(index, 'mataPelajaran', e.target.value)}
                         className="w-full font-bold text-center bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:font-normal placeholder:text-stone-400"
                       />
+                      <div className="text-[9px] font-medium text-blue-500/70 uppercase tracking-wider">
+                        Sesuai Jadwal
+                      </div>
                     </div>
 
                     {[

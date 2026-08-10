@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Users, 
   UserPlus, 
@@ -18,6 +18,8 @@ import {
   Clock,
   MapPin,
   Trash2,
+  Folder,
+  ChevronRight,
   Calendar,
   ChevronDown,
   ChevronUp
@@ -299,6 +301,49 @@ export const AdminDashboard: React.FC = () => {
   const paginatedTentors = tentors.slice((tentorPage - 1) * tentorsPerPage, tentorPage * tentorsPerPage);
   const totalTentorPages = Math.ceil(tentors.length / tentorsPerPage);
 
+  const groupedJadwal = useMemo(() => {
+    // Jenjang > Bulan > Minggu > Hari > Ruangan
+    const grouped: Record<string, Record<string, Record<string, Record<string, Record<string, Jadwal[]>>>>> = {};
+
+    jadwalList.forEach(j => {
+      const sids = Array.from(new Set([...(j.studentIds || []), (j as any).studentId])).filter(Boolean);
+      let jenjang = 'Lainnya';
+      if (sids.length > 0) {
+        const student = students.find(s => s.id === sids[0]);
+        if (student && student.jenjang) jenjang = student.jenjang;
+      }
+      
+      const bulan = (j as any).bulan || 'Bulan Berjalan';
+      const minggu = j.mingguKe ? `Minggu Ke-${j.mingguKe}` : 'Tanpa Minggu';
+      const hari = j.hari || 'Tanpa Hari';
+      const ruangan = j.ruangan || 'Tanpa Ruangan';
+
+      if (!grouped[jenjang]) grouped[jenjang] = {};
+      if (!grouped[jenjang][bulan]) grouped[jenjang][bulan] = {};
+      if (!grouped[jenjang][bulan][minggu]) grouped[jenjang][bulan][minggu] = {};
+      if (!grouped[jenjang][bulan][minggu][hari]) grouped[jenjang][bulan][minggu][hari] = {};
+      if (!grouped[jenjang][bulan][minggu][hari][ruangan]) grouped[jenjang][bulan][minggu][hari][ruangan] = [];
+
+      grouped[jenjang][bulan][minggu][hari][ruangan].push(j);
+    });
+
+    return grouped;
+  }, [jadwalList, students]);
+
+    const [jadwalPath, setJadwalPath] = useState<string[]>([]);
+
+  // Calculate current folder contents
+  const currentFolderContent = useMemo(() => {
+    let current: any = groupedJadwal;
+    for (const path of jadwalPath) {
+      if (current[path]) {
+        current = current[path];
+      } else {
+        return null;
+      }
+    }
+    return current;
+  }, [groupedJadwal, jadwalPath]);
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       
@@ -835,85 +880,149 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {jadwalList.map((j) => {
-                  const tentor = tentors.find(t => t.id === j.tentorId);
-                  
-                  return (
-                    <div key={j.id} className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col gap-4">
-                      <div className="flex items-start justify-between border-b border-slate-200 pb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-extrabold text-xs">
-                            {j.hari}
-                          </span>
-                          <span className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
-                            <Clock className="w-4 h-4 text-slate-400" />
-                            {j.jamMulai} - {j.jamSelesai}
-                          </span>
-                        </div>
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => {
-                              setEditingJadwal(j);
-                              setIsJadwalModalOpen(true);
-                            }}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setConfirmModal({
-                                isOpen: true,
-                                title: 'Hapus Jadwal',
-                                message: 'Yakin ingin menghapus jadwal ini? Jadwal yang dihapus tidak dapat dikembalikan.',
-                                confirmText: 'Hapus',
-                                onConfirm: () => {
-                                  deleteJadwal(j.id);
-                                  setConfirmModal(prev => ({ ...prev, isOpen: false }));
-                                }
-                              });
-                            }}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+              <div className="space-y-6">
+                {/* Breadcrumbs */}
+                <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <button 
+                    onClick={() => setJadwalPath([])} 
+                    className={`hover:text-indigo-600 transition-colors flex items-center gap-1.5 ${jadwalPath.length === 0 ? 'text-indigo-600' : ''}`}
+                  >
+                    <Folder className="w-4 h-4" />
+                    Jadwal
+                  </button>
+                  {jadwalPath.map((path, idx) => (
+                    <React.Fragment key={idx}>
+                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <button 
+                        onClick={() => setJadwalPath(jadwalPath.slice(0, idx + 1))} 
+                        className={`hover:text-indigo-600 transition-colors ${idx === jadwalPath.length - 1 ? 'text-indigo-600' : ''}`}
+                      >
+                        {path}
+                      </button>
+                    </React.Fragment>
+                  ))}
+                </div>
+
+                {Object.keys(groupedJadwal).length === 0 ? (
+                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                    <p className="text-slate-500 font-bold text-sm sm:text-base">Belum ada jadwal yang dibuat.</p>
+                  </div>
+                ) : !currentFolderContent ? (
+                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                    <p className="text-slate-500 font-bold text-sm sm:text-base">Folder tidak ditemukan.</p>
+                  </div>
+                ) : (
+                  <div>
+                    {jadwalPath.length < 5 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {Object.keys(currentFolderContent).sort((a,b) => {
+                          if (jadwalPath.length === 3) {
+                             const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+                             return days.indexOf(a) - days.indexOf(b);
+                          }
+                          return a.localeCompare(b);
+                        }).map((folderName) => {
+                          // Calculate item count recursively
+                          const countItems = (obj: any): number => {
+                            if (Array.isArray(obj)) return obj.length;
+                            let count = 0;
+                            for (const key in obj) {
+                              count += countItems(obj[key]);
+                            }
+                            return count;
+                          };
+                          const itemsCount = countItems(currentFolderContent[folderName]);
+
+                          return (
+                            <div 
+                              key={folderName}
+                              onClick={() => setJadwalPath([...jadwalPath, folderName])}
+                              className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-50 hover:border-indigo-200 transition-all shadow-sm hover:shadow-md group"
+                            >
+                              <div className="w-12 h-12 rounded-xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center text-indigo-500 transition-colors shrink-0">
+                                <Folder className="w-6 h-6 fill-indigo-100 group-hover:fill-indigo-200 transition-colors" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="font-extrabold text-slate-800 truncate" title={folderName}>{folderName}</h4>
+                                <p className="text-xs font-bold text-slate-400 mt-0.5">{itemsCount} Jadwal</p>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      
-                      <div>
-                        <h4 className="font-black text-slate-900">{j.mataPelajaran}</h4>
-                        {j.ruangan && (
-                          <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-                            <MapPin className="w-3 h-3" />
-                            Ruangan: {j.ruangan}
-                          </p>
-                        )}
+                    ) : (
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        {currentFolderContent.sort((a: any, b: any) => a.jamMulai.localeCompare(b.jamMulai)).map((j: any) => {
+                          const tentor = tentors.find(t => t.id === j.tentorId);
+                          return (
+                            <div key={j.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-4">
+                              <div className="flex items-start justify-between border-b border-slate-200 pb-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                                    <Clock className="w-5 h-5" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-black text-slate-900 text-base">{j.mataPelajaran}</h4>
+                                    <p className="text-sm font-bold text-indigo-600 mt-0.5">{j.jamMulai} - {j.jamSelesai}</p>
+                                  </div>
+                                </div>
+                                <div className="flex gap-1.5 bg-slate-50 p-1 rounded-lg border border-slate-100">
+                                  <button 
+                                    onClick={() => {
+                                      setEditingJadwal(j);
+                                      setIsJadwalModalOpen(true);
+                                    }}
+                                    className="p-2 rounded-md text-slate-400 hover:text-purple-600 hover:bg-purple-100 transition-colors"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
+                                  <button 
+                                    onClick={() => {
+                                      setConfirmModal({
+                                        isOpen: true,
+                                        title: 'Hapus Jadwal',
+                                        message: 'Yakin ingin menghapus jadwal ini? Jadwal yang dihapus tidak dapat dikembalikan.',
+                                        confirmText: 'Hapus',
+                                        onConfirm: () => {
+                                          deleteJadwal(j.id);
+                                          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                        }
+                                      });
+                                    }}
+                                    className="p-2 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-100 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">Pengajar</p>
+                                  <p className="text-sm font-bold text-slate-800">{tentor?.nama || 'Unknown'}</p>
+                                </div>
+                                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 max-h-32 overflow-y-auto">
+                                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">Siswa</p>
+                                  <div className="space-y-1.5">
+                                    {Array.from(new Set([...(j.studentIds || []), (j as any).studentId])).filter(Boolean).map((sid: any) => {
+                                      const student = students.find(s => s.id === sid);
+                                      return (
+                                        <p key={sid} className="text-xs font-bold text-slate-700 flex items-center gap-2 truncate">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0"></span>
+                                          {student?.nama || 'Unknown'}
+                                        </p>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                        <div className="bg-white p-3 rounded-xl border border-slate-100">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pengajar</p>
-                          <p className="text-xs font-bold text-slate-800">{tentor?.nama || 'Unknown'}</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-xl border border-slate-100 max-h-24 overflow-y-auto">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Siswa</p>
-                          <div className="space-y-1">
-                            {Array.from(new Set([...(j.studentIds || []), (j as any).studentId])).filter(Boolean).map((sid: any) => {
-                              const student = students.find(s => s.id === sid);
-                              return (
-                                <p key={sid} className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0"></span>
-                                  {student?.nama || 'Unknown'}
-                                </p>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ) : (

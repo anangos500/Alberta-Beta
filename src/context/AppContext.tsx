@@ -247,6 +247,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               mataPelajaran: parsed.mataPelajaran || 'Umum',
               ruangan: parsed.ruangan !== undefined ? parsed.ruangan : (j.ruangan && !j.ruangan.startsWith('{') ? j.ruangan : ''),
               studentIds: parsed.studentIds || (j.student_id ? [j.student_id] : []),
+              mingguKe: parsed.mingguKe,
             };
           });
           setJadwalList(mappedJadwals as any);
@@ -770,7 +771,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         mataPelajaran: jadwalData.mataPelajaran,
         ruangan: jadwalData.ruangan,
         jamMulai: jadwalData.jamMulai,
-        jamSelesai: jadwalData.jamSelesai
+        jamSelesai: jadwalData.jamSelesai,
+        mingguKe: jadwalData.mingguKe
       })
     };
     const { data, error } = await supabase.from('jadwals').insert([dbData]).select();
@@ -795,7 +797,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         mataPelajaran: updatedJadwal.mataPelajaran,
         ruangan: updatedJadwal.ruangan,
         jamMulai: updatedJadwal.jamMulai,
-        jamSelesai: updatedJadwal.jamSelesai
+        jamSelesai: updatedJadwal.jamSelesai,
+        mingguKe: updatedJadwal.mingguKe
       })
     };
     const { error } = await supabase.from('jadwals').update(dbData).eq('id', updatedJadwal.id);

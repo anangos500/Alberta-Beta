@@ -154,7 +154,8 @@ export const GenerateJadwalModal: React.FC<Props> = ({ onClose }) => {
         jamMulai: s.jamMulai,
         jamSelesai: s.jamSelesai,
         mataPelajaran: s.mataPelajaran,
-        ruangan: s.ruangan
+        ruangan: s.ruangan,
+        mingguKe: s.mingguKe
       });
     });
     
