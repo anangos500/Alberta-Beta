@@ -23,16 +23,20 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { downloadReportsZip } from '../../utils/exportZip';
+import { downloadReportsExcel } from '../../utils/exportExcel';
 import { Student, Tentor, WeeklyReport, Jadwal } from '../../types';
 import { StudentManagementModal } from './StudentManagementModal';
 import { TentorManagementModal } from './TentorManagementModal';
 import { ReportDetailModal } from './ReportDetailModal';
 import { JadwalManagementModal } from './JadwalManagementModal';
+import { TemplateJadwalTab } from './TemplateJadwalTab';
+import { GenerateJadwalModal } from './GenerateJadwalModal';
+import { Wand2 } from 'lucide-react';
 import { NotificationManagement } from './NotificationManagement';
 import { RekapitulasiModal } from './RekapitulasiModal';
 import { AdminUlasanTab } from './AdminUlasanTab';
 import { PublicSettingsAdmin } from './PublicSettingsAdmin';
+import { ConfirmModal } from './ConfirmModal';
 import { FileSpreadsheet, Settings } from 'lucide-react';
 
 const MobileStudentCard: React.FC<{
@@ -127,15 +131,17 @@ const MobileStudentCard: React.FC<{
                 <><CheckCircle2 className="w-3.5 h-3.5" /> Aktifkan</>
               )}
             </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(s.id);
-              }}
-              className="px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold rounded-xl text-red-500 hover:bg-red-50 border border-red-100 transition-colors shadow-xs bg-white"
-            >
-              <Trash2 className="w-3.5 h-3.5" /> Hapus
-            </button>
+            {s.status !== 'aktif' && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(s.id);
+                }}
+                className="px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold rounded-xl text-red-500 hover:bg-red-50 border border-red-100 transition-colors shadow-xs bg-white"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Hapus
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -146,7 +152,8 @@ const MobileStudentCard: React.FC<{
 const TentorCard: React.FC<{
   tentor: Tentor;
   onEdit: (tentor: Tentor) => void;
-}> = ({ tentor: t, onEdit }) => {
+  onDelete: (id: string) => void;
+}> = ({ tentor: t, onEdit, onDelete }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -174,7 +181,17 @@ const TentorCard: React.FC<{
           >
             <Edit3 className="w-4 h-4" />
           </button>
-          <div className="md:hidden p-1.5 bg-slate-50 rounded-xl text-slate-400">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(t.id);
+            }}
+            className="p-1.5 sm:p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors bg-white border border-red-100 shadow-xs"
+            title="Hapus Tentor"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+          <div className="md:hidden p-1.5 bg-slate-50 rounded-xl text-slate-400"> 
              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </div>
         </div>
@@ -203,14 +220,30 @@ export const AdminDashboard: React.FC = () => {
     students, 
     tentors, 
     reports, 
-    toggleStudentStatus, 
+    toggleStudentStatus,
+    deleteStudent,
     portalTab, 
     setPortalTab,
     addTentor,
     updateTentor,
+    deleteTentor,
     jadwalList,
     deleteJadwal
   } = useApp();
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Hapus',
+    onConfirm: () => {},
+  });
 
   const [search, setSearch] = useState('');
   const [filterJenjang, setFilterJenjang] = useState<'ALL' | 'SD' | 'SMP'>('ALL');
@@ -225,6 +258,8 @@ export const AdminDashboard: React.FC = () => {
 
   const [isJadwalModalOpen, setIsJadwalModalOpen] = useState(false);
   const [editingJadwal, setEditingJadwal] = useState<Jadwal | null>(null);
+  const [jadwalSubTab, setJadwalSubTab] = useState<'aktif' | 'template'>('aktif');
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
 
   const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null);
   
@@ -279,7 +314,7 @@ export const AdminDashboard: React.FC = () => {
               Panel Master <span className="text-purple-600">Admin</span>
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm max-w-xl leading-relaxed">
-              Kelola data master siswa TK, SD SD & SMP SMP, penugasan tentor, serta pemantauan rekap laporan perkembangan belajar mingguan.
+              Kelola data siswa TK, SD SD & SMP SMP, penugasan tentor, serta pemantauan rekap laporan perkembangan belajar bulanan.
             </p>
           </div>
           <button
@@ -384,7 +419,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 border-b border-slate-100 pb-5">
             <div>
               <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Master Data Siswa
+                Data Siswa
               </h3>
               <p className="text-sm text-slate-500 mt-1">
                 Kelola data profil siswa dan pengaturan status keanggotaan.
@@ -464,7 +499,18 @@ export const AdminDashboard: React.FC = () => {
                     setIsStudentModalOpen(true);
                   }}
                   onToggleStatus={toggleStudentStatus}
-                  onDelete={(id) => toggleStudentStatus(id)}
+                  onDelete={(id) => {
+                    setConfirmModal({
+                      isOpen: true,
+                      title: 'Hapus Data Siswa',
+                      message: 'Yakin ingin menghapus data siswa ini secara permanen? Data yang dihapus tidak dapat dikembalikan.',
+                      confirmText: 'Hapus Permanen',
+                      onConfirm: () => {
+                        deleteStudent(id);
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                      }
+                    });
+                  }}
                 />
               ))
             )}
@@ -563,6 +609,27 @@ export const AdminDashboard: React.FC = () => {
                           >
                             {s.status === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'}
                           </button>
+                          
+                          {s.status !== 'aktif' && (
+                            <button
+                              onClick={() => {
+                                setConfirmModal({
+                                  isOpen: true,
+                                  title: 'Hapus Data Siswa',
+                                  message: 'Yakin ingin menghapus data siswa ini secara permanen? Data yang dihapus tidak dapat dikembalikan.',
+                                  confirmText: 'Hapus Permanen',
+                                  onConfirm: () => {
+                                    deleteStudent(s.id);
+                                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                  }
+                                });
+                              }}
+                              className="p-2 rounded-xl text-red-600 hover:bg-red-50 border border-red-100 transition-colors cursor-pointer shadow-xs bg-white ml-1"
+                              title="Hapus Permanen"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
 
@@ -576,7 +643,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* REKAP SEMUA LAPORAN MINGGUAN */}
+      {/* REKAP SEMUA LAPORAN BULANAN */}
       {portalTab === 'rekap_laporan' && (
         <div className="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm p-4 sm:p-8 space-y-4 sm:space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 sm:pb-5 gap-3 sm:gap-4">
@@ -585,7 +652,7 @@ export const AdminDashboard: React.FC = () => {
                 Arsip Laporan per Pengajar
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">
-                Kumpulan laporan mingguan yang dikelompokkan berdasarkan tentor/pengajar.
+                Kumpulan laporan bulanan yang dikelompokkan berdasarkan tentor/pengajar.
               </p>
             </div>
             <span className="text-[10px] sm:text-[11px] font-extrabold text-purple-700 bg-purple-50 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border border-purple-200 uppercase tracking-wider self-start sm:self-auto">
@@ -615,7 +682,7 @@ export const AdminDashboard: React.FC = () => {
 
                   <button
                     className="w-full py-2.5 sm:py-3.5 px-3.5 sm:px-4 rounded-xl font-bold text-xs sm:text-sm text-white bg-purple-600 hover:bg-purple-700 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => downloadReportsZip(tentorReports, `Laporan_${tentor.nama.replace(/[^a-z0-9]/gi, '_')}`)}
+                    onClick={() => downloadReportsExcel(tentorReports, `Laporan_${tentor.nama.replace(/[^a-z0-9]/gi, '_')}`)}
                     disabled={tentorReports.length === 0}
                   >
                     <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
@@ -680,6 +747,18 @@ export const AdminDashboard: React.FC = () => {
                   setEditingTentor(tentor);
                   setIsTentorModalOpen(true);
                 }}
+                onDelete={(id) => {
+                  setConfirmModal({
+                    isOpen: true,
+                    title: 'Hapus Data Tentor',
+                    message: 'Yakin ingin menghapus data pengajar ini? Aksi ini tidak dapat dibatalkan.',
+                    confirmText: 'Hapus',
+                    onConfirm: () => {
+                      deleteTentor(id);
+                      setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                    }
+                  });
+                }}
               />
             ))}
           </div>
@@ -707,7 +786,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* JADWAL */}
+            {/* JADWAL */}
       {portalTab === 'jadwal' && (
         <div className="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm p-6 sm:p-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 border-b border-slate-100 pb-5">
@@ -717,95 +796,133 @@ export const AdminDashboard: React.FC = () => {
               </h3>
               <p className="text-sm text-slate-500 mt-1">Atur jadwal pertemuan tentor dengan siswa.</p>
             </div>
-            <button
-              onClick={() => {
-                setEditingJadwal(null);
-                setIsJadwalModalOpen(true);
-              }}
-              className="px-4 py-2.5 rounded-xl bg-purple-600 text-white font-extrabold text-sm hover:bg-purple-700 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md w-full sm:w-auto shrink-0"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Tambah Jadwal</span>
-            </button>
+            
+            <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl w-full sm:w-auto">
+              <button
+                onClick={() => setJadwalSubTab('aktif')}
+                className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-sm font-extrabold transition-all ${
+                  jadwalSubTab === 'aktif'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Jadwal Aktif
+              </button>
+              <button
+                onClick={() => setJadwalSubTab('template')}
+                className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-sm font-extrabold transition-all ${
+                  jadwalSubTab === 'template'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Template Jadwal
+              </button>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {jadwalList.map((j) => {
-              const tentor = tentors.find(t => t.id === j.tentorId);
+          {jadwalSubTab === 'aktif' ? (
+            <div className="space-y-6">
+              <div className="flex justify-end">
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <button
+                    onClick={() => setIsGenerateModalOpen(true)}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-teal-600 text-white font-extrabold text-sm hover:bg-teal-700 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md"
+                  >
+                    <Wand2 className="w-4 h-4" />
+                    <span>Generate Jadwal</span>
+                  </button>
+                </div>
+              </div>
               
-              return (
-                <div key={j.id} className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col gap-4">
-                  <div className="flex items-start justify-between border-b border-slate-200 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-extrabold text-xs">
-                        {j.hari}
-                      </span>
-                      <span className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-slate-400" />
-                        {j.jamMulai} - {j.jamSelesai}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => {
-                          setEditingJadwal(j);
-                          setIsJadwalModalOpen(true);
-                        }}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-colors"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          if (window.confirm('Yakin ingin menghapus jadwal ini?')) {
-                            deleteJadwal(j.id);
-                          }
-                        }}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {jadwalList.map((j) => {
+                  const tentor = tentors.find(t => t.id === j.tentorId);
                   
-                  <div>
-                    <h4 className="font-black text-slate-900">{j.mataPelajaran}</h4>
-                    {j.ruangan && (
-                      <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-                        <MapPin className="w-3 h-3" />
-                        Ruangan: {j.ruangan}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                    <div className="bg-white p-3 rounded-xl border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pengajar</p>
-                      <p className="text-xs font-bold text-slate-800">{tentor?.nama || 'Unknown'}</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-slate-100 max-h-24 overflow-y-auto">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Siswa</p>
-                      <div className="space-y-1">
-                        {Array.from(new Set([...(j.studentIds || []), (j as any).studentId])).filter(Boolean).map((sid: any) => {
-                          const student = students.find(s => s.id === sid);
-                          return (
-                            <p key={sid} className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0"></span>
-                              {student?.nama || 'Unknown'}
-                            </p>
-                          );
-                        })}
+                  return (
+                    <div key={j.id} className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col gap-4">
+                      <div className="flex items-start justify-between border-b border-slate-200 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-extrabold text-xs">
+                            {j.hari}
+                          </span>
+                          <span className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                            <Clock className="w-4 h-4 text-slate-400" />
+                            {j.jamMulai} - {j.jamSelesai}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => {
+                              setEditingJadwal(j);
+                              setIsJadwalModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setConfirmModal({
+                                isOpen: true,
+                                title: 'Hapus Jadwal',
+                                message: 'Yakin ingin menghapus jadwal ini? Jadwal yang dihapus tidak dapat dikembalikan.',
+                                confirmText: 'Hapus',
+                                onConfirm: () => {
+                                  deleteJadwal(j.id);
+                                  setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                                }
+                              });
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-black text-slate-900">{j.mataPelajaran}</h4>
+                        {j.ruangan && (
+                          <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
+                            <MapPin className="w-3 h-3" />
+                            Ruangan: {j.ruangan}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                        <div className="bg-white p-3 rounded-xl border border-slate-100">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pengajar</p>
+                          <p className="text-xs font-bold text-slate-800">{tentor?.nama || 'Unknown'}</p>
+                        </div>
+                        <div className="bg-white p-3 rounded-xl border border-slate-100 max-h-24 overflow-y-auto">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Siswa</p>
+                          <div className="space-y-1">
+                            {Array.from(new Set([...(j.studentIds || []), (j as any).studentId])).filter(Boolean).map((sid: any) => {
+                              const student = students.find(s => s.id === sid);
+                              return (
+                                <p key={sid} className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0"></span>
+                                  {student?.nama || 'Unknown'}
+                                </p>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <TemplateJadwalTab />
+          )}
         </div>
       )}
 
-      {/* PEMBERITAHUAN */}
+{/* PEMBERITAHUAN */}
       {portalTab === 'pemberitahuan' && (
         <NotificationManagement />
       )}
@@ -852,6 +969,10 @@ export const AdminDashboard: React.FC = () => {
           editingJadwal={editingJadwal}
         />
       )}
+      
+      {isGenerateModalOpen && (
+        <GenerateJadwalModal onClose={() => setIsGenerateModalOpen(false)} />
+      )}
 
       {/* Report Detail Modal */}
       {selectedReport && (
@@ -860,6 +981,16 @@ export const AdminDashboard: React.FC = () => {
           onClose={() => setSelectedReport(null)}
         />
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText="Batal"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+      />
 
       <RekapitulasiModal 
         isOpen={isRekapModalOpen} 

@@ -139,49 +139,37 @@ export const GallerySection: React.FC = () => {
             </div>
             
             <h2 className="hidden lg:block text-4xl font-extrabold text-slate-900 leading-tight">
-              Keseruan Belajar Bersama <br/>
-              <span className="text-purple-600">Bimbel Alberta</span>
+              {publicContent?.gallery_title_1 || 'Keseruan Belajar Bersama'} <br/>
+              <span className="text-purple-600">{publicContent?.gallery_title_2 || 'Bimbel Alberta'}</span>
             </h2>
             
             <p className="text-slate-600 text-base lg:text-lg leading-relaxed text-justify hyphens-auto">
-              Kami percaya bahwa lingkungan belajar yang menyenangkan adalah kunci utama untuk menyerap ilmu dengan baik. Di Bimbel Alberta, setiap sesi dirancang interaktif agar siswa tidak hanya menghafal, tetapi benar-benar memahami konsep.
+              {publicContent?.gallery_desc || 'Kami percaya bahwa lingkungan belajar yang menyenangkan adalah kunci utama untuk menyerap ilmu dengan baik. Di Bimbel Alberta, setiap sesi dirancang interaktif agar siswa tidak hanya menghafal, tetapi benar-benar memahami konsep.'}
             </p>
 
             <ul className="space-y-4 mt-6">
-              <li className="flex items-start gap-3">
-                <div className="mt-1 bg-green-100 text-green-600 p-1.5 rounded-full shrink-0">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Fasilitas Modern & Nyaman</h4>
-                  <p className="text-slate-500 text-sm mt-0.5">Ruang ber-AC yang kondusif mendukung fokus siswa.</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="mt-1 bg-green-100 text-green-600 p-1.5 rounded-full shrink-0">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Pendampingan Intensif</h4>
-                  <p className="text-slate-500 text-sm mt-0.5">Tentor selalu siap membantu siswa yang kesulitan.</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="mt-1 bg-green-100 text-green-600 p-1.5 rounded-full shrink-0">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Metode Interaktif</h4>
-                  <p className="text-slate-500 text-sm mt-0.5">Belajar tidak lagi membosankan dengan diskusi dua arah.</p>
-                </div>
-              </li>
+              {(publicContent?.gallery_points?.length > 0 ? publicContent.gallery_points : [
+                { title: 'Fasilitas Modern & Nyaman', desc: 'Ruang ber-AC yang kondusif mendukung fokus siswa.' },
+                { title: 'Pendampingan Intensif', desc: 'Tentor selalu siap membantu siswa yang kesulitan.' },
+                { title: 'Metode Interaktif', desc: 'Belajar tidak lagi membosankan dengan diskusi dua arah.' }
+              ]).map((point: any, idx: number) => (
+                <li key={idx} className="flex items-start gap-3">
+                  <div className="mt-1 bg-green-100 text-green-600 p-1.5 rounded-full shrink-0">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">{point.title}</h4>
+                    <p className="text-slate-500 text-sm mt-0.5">{point.desc}</p>
+                  </div>
+                </li>
+              ))}
             </ul>
 
             <div className="pt-6 flex gap-4">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-bold text-sm transition-colors border border-pink-200">
+              <a href={publicContent?.social_links?.instagram || "https://instagram.com"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-bold text-sm transition-colors border border-pink-200">
                 <Instagram className="w-4 h-4" /> Instagram
               </a>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition-colors">
+              <a href={publicContent?.social_links?.tiktok || "https://tiktok.com"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition-colors">
                 <Video className="w-4 h-4" /> TikTok
               </a>
             </div>

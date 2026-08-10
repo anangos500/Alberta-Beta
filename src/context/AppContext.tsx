@@ -45,6 +45,7 @@ interface AppContextType {
   addStudent: (student: Omit<Student, 'id' | 'nis' | 'tanggalDaftar'>) => void;
   updateStudent: (student: Student) => void;
   toggleStudentStatus: (id: string) => void;
+  deleteStudent: (id: string) => void;
 
   // Report Actions
   addWeeklyReport: (report: Omit<WeeklyReport, 'id' | 'createdDate'>) => void;
@@ -54,6 +55,7 @@ interface AppContextType {
   // Tentor Actions
   addTentor: (tentor: Omit<Tentor, 'id'>) => void;
   updateTentor: (tentor: Tentor) => void;
+  deleteTentor: (id: string) => void;
 
   // Modal Controls
   isLoginModalOpen: boolean;
@@ -163,6 +165,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
             return {
               ...s,
+              jenjang: s.jenjang === 'SD' && s.kelas === 0 ? 'TK' : s.jenjang,
               nis: s.id.substring(0, 8).toUpperCase(),
               parentId: s.parent_id,
               tentorId: s.tentor_id,
@@ -288,7 +291,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               (newNotif.target_id === currentUser.id);
 
             if (isTargeted && newNotif.sender_id !== currentUser.id) {
-              const mappedNotif = {
+              const mappedNotif: any = {
                 ...newNotif,
                 targetType: newNotif.target_type,
                 targetId: newNotif.target_id,
@@ -340,7 +343,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               (newNotif.target_id === currentUser.id);
 
             if (isTargeted && newNotif.sender_id !== currentUser.id) {
-              const mappedNotif = {
+              const mappedNotif: any = {
                 ...newNotif,
                 targetType: newNotif.target_type,
                 targetId: newNotif.target_id,
@@ -503,7 +506,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Prepare student data for Supabase (excluding UI-only fields)
     const dbStudentData = {
       nama: newStudentData.nama,
-      jenjang: newStudentData.jenjang,
+      jenjang: newStudentData.jenjang === 'TK' ? 'SD' : newStudentData.jenjang,
       kelas: newStudentData.kelas,
       sekolah: newStudentData.sekolah,
       status: newStudentData.status,
@@ -521,7 +524,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         id: insertedStudent.id,
         nis: insertedStudent.id.substring(0, 8).toUpperCase(),
         nama: insertedStudent.nama,
-        jenjang: insertedStudent.jenjang,
+        jenjang: insertedStudent.jenjang === 'SD' && insertedStudent.kelas === 0 ? 'TK' : insertedStudent.jenjang,
         kelas: insertedStudent.kelas,
         sekolah: insertedStudent.sekolah,
         status: insertedStudent.status,
@@ -547,7 +550,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const isValidUUID = (id) => id && id.length > 20;
     const dbUpdateData = {
       nama: updatedStudent.nama,
-      jenjang: updatedStudent.jenjang,
+      jenjang: updatedStudent.jenjang === 'TK' ? 'SD' : updatedStudent.jenjang,
       kelas: updatedStudent.kelas,
       sekolah: updatedStudent.sekolah,
       status: updatedStudent.status,
@@ -569,6 +572,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (student) {
       const newStatus = student.status === 'aktif' ? 'cuti' : 'aktif';
       await updateStudent({ ...student, status: newStatus });
+    }
+  };
+
+  const deleteStudent = async (id: string) => {
+    if (!import.meta.env.VITE_SUPABASE_URL) return;
+    const { error } = await supabase.from('students').delete().eq('id', id);
+    if (error) {
+      console.error("Error deleting student:", error);
+      alert('Gagal menghapus siswa: ' + error.message);
+    } else {
+      setStudents(prev => prev.filter(s => s.id !== id));
     }
   };
 
@@ -733,6 +747,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTentors(prev => prev.map(t => t.id === tentorData.id ? { ...t, ...tentorData } : t));
   };
 
+  const deleteTentor = async (id: string) => {
+    if (!import.meta.env.VITE_SUPABASE_URL) return;
+    const { error } = await supabase.from('profiles').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting tentor:', error);
+      alert('Gagal menghapus data pengajar: ' + error.message);
+    } else {
+      setTentors(prev => prev.filter(t => t.id !== id));
+    }
+  };
+
   const addJadwal = async (jadwalData: any) => {
     if (!import.meta.env.VITE_SUPABASE_URL) return;
     const dbData = {
@@ -841,11 +866,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addStudent,
         updateStudent,
         toggleStudentStatus,
+        deleteStudent,
         addWeeklyReport,
         updateWeeklyReport,
         deleteWeeklyReport,
         addTentor,
         updateTentor,
+        deleteTentor,
         jadwalList,
         addJadwal,
         updateJadwal,

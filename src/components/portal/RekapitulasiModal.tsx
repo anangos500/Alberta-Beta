@@ -350,7 +350,7 @@ export const RekapitulasiModal: React.FC<RekapitulasiModalProps> = ({
                   onChange={(e) => setIncludeSiswaSheet(e.target.checked)}
                   className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 shrink-0"
                 />
-                <span>Sheet 2: Master Data Siswa TK, SD SD & SMP SMP</span>
+                <span>Sheet 2: Data Siswa TK, SD SD & SMP SMP</span>
               </label>
 
               <label className="flex items-center gap-2.5 cursor-pointer text-slate-800 hover:text-slate-900">
@@ -360,7 +360,7 @@ export const RekapitulasiModal: React.FC<RekapitulasiModalProps> = ({
                   onChange={(e) => setIncludeLaporanSheet(e.target.checked)}
                   className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 shrink-0"
                 />
-                <span>Sheet 3: Detail Riwayat Laporan Mingguan</span>
+                <span>Sheet 3: Detail Riwayat Laporan Bulanan</span>
               </label>
             </div>
           </div>

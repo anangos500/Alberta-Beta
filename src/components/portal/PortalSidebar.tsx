@@ -52,19 +52,7 @@ export const PortalSidebar: React.FC = () => {
               }`}
             >
               <Users className="w-4 h-4 shrink-0" />
-              <span className="leading-tight">Master Siswa (TK, SD SD & SMP SMP)</span>
-            </button>
-
-            <button
-              onClick={() => setPortalTab('public_settings')}
-              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
-                portalTab === 'public_settings'
-                  ? 'bg-purple-100 text-purple-700 shadow-sm'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4 shrink-0" />
-              <span className="leading-tight">Pengaturan Publik</span>
+              <span className="leading-tight">Data Siswa (TK, SD SD & SMP SMP)</span>
             </button>
 
             <button
@@ -104,6 +92,18 @@ export const PortalSidebar: React.FC = () => {
             </button>
 
             <button
+              onClick={() => setPortalTab('public_settings')}
+              className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
+                portalTab === 'public_settings'
+                  ? 'bg-purple-100 text-purple-700 shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
+              <span className="leading-tight">Pengaturan Publik</span>
+            </button>
+
+            <button
               onClick={() => setPortalTab('rekap_laporan')}
               className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer ${
                 portalTab === 'rekap_laporan'
@@ -112,7 +112,7 @@ export const PortalSidebar: React.FC = () => {
               }`}
             >
               <FileText className="w-4 h-4 shrink-0" />
-              <span className="leading-tight">Semua Laporan Mingguan</span>
+              <span className="leading-tight">Semua Laporan Bulanan</span>
             </button>
             <button
               onClick={() => setPortalTab('ulasan')}
@@ -205,7 +205,7 @@ export const PortalSidebar: React.FC = () => {
               }`}
             >
               <FileText className="w-4 h-4 shrink-0" />
-              <span className="leading-tight">Laporan Mingguan</span>
+              <span className="leading-tight">Laporan Bulanan</span>
             </button>
 
             <button

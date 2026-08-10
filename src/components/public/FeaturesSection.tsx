@@ -5,10 +5,11 @@ import { useApp } from '../../context/AppContext';
 export const FeaturesSection: React.FC = () => {
   const { publicContent } = useApp();
   const featuresImages = publicContent?.features_images || ["", "", "", ""];
-  const features = [
+  
+  const defaultFeatures = [
     {
       icon: <Award className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />,
-      title: "Laporan Perkembangan Mingguan",
+      title: "Laporan Perkembangan Bulanan",
       desc: "7 Poin penilaian mendalam dapat diakses kapan saja oleh Orang Tua via Portal Albertian.",
       bg: "bg-purple-100"
     },
@@ -31,6 +32,10 @@ export const FeaturesSection: React.FC = () => {
       bg: "bg-pink-100"
     }
   ];
+
+  const features = publicContent?.features_list?.length > 0 
+    ? publicContent.features_list.map((f: any, idx: number) => ({ ...defaultFeatures[idx], title: f.title, desc: f.desc }))
+    : defaultFeatures;
 
   return (
     <section className="py-12 lg:py-16 bg-white relative overflow-hidden">
@@ -71,10 +76,10 @@ export const FeaturesSection: React.FC = () => {
           <div className="space-y-10">
             <div>
               <h2 className="text-2xl sm:text-4xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
-                Keunggulan Dari <span className="text-purple-600">Bimbel Alberta</span>
+                {publicContent?.features_title_1 || 'Keunggulan Dari'} <span className="text-purple-600">{publicContent?.features_title_2 || 'Bimbel Alberta'}</span>
               </h2>
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-lg text-justify hyphens-auto">
-                Tumbuh menjadi pembelajar mandiri yang memahami konsep dasar dengan percaya diri dan gembira bersama Bimbel Alberta di Bondowoso.
+                {publicContent?.features_desc || 'Tumbuh menjadi pembelajar mandiri yang memahami konsep dasar dengan percaya diri dan gembira bersama Bimbel Alberta di Bondowoso.'}
               </p>
             </div>
 

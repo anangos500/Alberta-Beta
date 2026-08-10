@@ -236,7 +236,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
     setRatings({ ...ratings, subjects: newSubjects });
   };
 
-  const handleSubjectChange = (index: number, field: keyof SubjectRating, value: string) => {
+  const handleSubjectChange = (index: number, field: string, value: string) => {
     const subjects = ratings.subjects || [];
     const newSubjects = [...subjects];
     newSubjects[index] = {
@@ -514,7 +514,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
                               <button
                                 type="button"
                                 key={abbr}
-                                onClick={() => handleSubjectChange(index, field.key as keyof typeof subject, opt)}
+                                onClick={() => handleSubjectChange(index, field.key, opt)}
                                 className={`py-1 rounded text-[10px] font-bold transition-all border text-center cursor-pointer ${
                                   isSelected
                                     ? 'bg-yellow-400 text-yellow-900 border-yellow-500 shadow-sm'

@@ -13,7 +13,7 @@ export const PublicSettingsAdmin: React.FC = () => {
     features_images: ["", "", "", ""],
     gallery_items: []
   });
-  const [activeTab, setActiveTab] = useState<'hero' | 'features' | 'program' | 'tentor' | 'gallery'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'about' | 'features' | 'program' | 'tentor' | 'gallery' | 'faq'>('hero');
   const [uploadingSlide, setUploadingSlide] = useState<number | null>(null);
   const [uploadingProgram, setUploadingProgram] = useState<number | null>(null);
   const [uploadingGallery, setUploadingGallery] = useState<number | null>(null);
@@ -200,6 +200,28 @@ export const PublicSettingsAdmin: React.FC = () => {
             <ImageIcon className="w-4 h-4" />
             Galeri Kegiatan
           </button>
+          <button
+            onClick={() => setActiveTab('about')}
+            className={`flex items-center gap-2 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer ${
+              activeTab === 'about' 
+                ? 'bg-purple-600 text-white shadow-md' 
+                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            Tentang Kami
+          </button>
+          <button
+            onClick={() => setActiveTab('faq')}
+            className={`flex items-center gap-2 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer ${
+              activeTab === 'faq' 
+                ? 'bg-purple-600 text-white shadow-md' 
+                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-100'
+            }`}
+          >
+            <Layout className="w-4 h-4" />
+            FAQ
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -309,15 +331,55 @@ export const PublicSettingsAdmin: React.FC = () => {
           )}
 
           {activeTab === 'features' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex items-center justify-between">
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900">Kolase Gambar Keunggulan</h3>
-                  <p className="text-xs sm:text-sm text-slate-500">Ubah 4 gambar yang tampil di bagian kiri pada area Keunggulan.</p>
+                  <h4 className="text-sm font-extrabold text-slate-900 mb-1">Teks Utama Keunggulan</h4>
+                  <p className="text-xs text-slate-500 mb-3">Atur judul dan deskripsi pada bagian keunggulan.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 mb-1.5">Judul (Baris 1)</label>
+                    <input
+                      type="text"
+                      value={content.features_title_1 || ''}
+                      onChange={(e) => setContent({ ...content, features_title_1: e.target.value })}
+                      placeholder="Keunggulan Dari"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 mb-1.5">Judul (Sorotan)</label>
+                    <input
+                      type="text"
+                      value={content.features_title_2 || ''}
+                      onChange={(e) => setContent({ ...content, features_title_2: e.target.value })}
+                      placeholder="Bimbel Alberta"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Deskripsi</label>
+                  <textarea
+                    value={content.features_desc || ''}
+                    onChange={(e) => setContent({ ...content, features_desc: e.target.value })}
+                    placeholder="Tumbuh menjadi pembelajar mandiri..."
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all min-h-[80px]"
+                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900">Kolase Gambar Keunggulan</h3>
+                    <p className="text-xs sm:text-sm text-slate-500">Ubah 4 gambar yang tampil di bagian kiri pada area Keunggulan.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[0, 1, 2, 3].map((idx) => (
                   <div key={idx} className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex flex-col gap-4 relative">
                     <div className="relative w-full aspect-square bg-slate-200 rounded-xl overflow-hidden group">
@@ -355,6 +417,69 @@ export const PublicSettingsAdmin: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Daftar Keunggulan</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 mb-4">Ubah 4 poin keunggulan yang ditampilkan pada area Keunggulan.</p>
+                </div>
+                
+                <div className="space-y-4">
+                  {[0, 1, 2, 3].map((idx) => {
+                    const defaultTitles = ["Laporan Perkembangan Bulanan", "Tentor Ramah & Berpengalaman", "Kelompok Belajar Eksklusif", "Fasilitas Nyaman di Pusat Kota"];
+                    const defaultDescs = [
+                      "7 Poin penilaian mendalam dapat diakses kapan saja oleh Orang Tua via Portal Albertian.",
+                      "Pengajar sabar, menguasai metode pembelajaran ramah anak SD dan komunikatif untuk remaja SMP.",
+                      "Maksimal 5-6 Siswa agar tentor dapat memberikan perhatian personal dan mendampingi PR secara optimal.",
+                      "Ruang kelas ber-AC, papan tulis interaktif, meja belajar ergonomic, serta lingkungan aman."
+                    ];
+                    
+                    const currentTitle = content.features_list && content.features_list[idx] ? content.features_list[idx].title : defaultTitles[idx];
+                    const currentDesc = content.features_list && content.features_list[idx] ? content.features_list[idx].desc : defaultDescs[idx];
+                    
+                    return (
+                      <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold shrink-0">{idx + 1}</span>
+                          <h4 className="text-sm font-extrabold text-slate-900">Keunggulan {idx + 1}</h4>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="md:col-span-1">
+                            <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Judul</label>
+                            <input
+                              type="text"
+                              value={currentTitle}
+                              onChange={(e) => {
+                                const newList = content.features_list ? [...content.features_list] : defaultTitles.map((t, i) => ({ title: t, desc: defaultDescs[i] }));
+                                if (!newList[idx]) newList[idx] = { title: '', desc: '' };
+                                newList[idx].title = e.target.value;
+                                setContent({ ...content, features_list: newList });
+                              }}
+                              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Deskripsi</label>
+                            <input
+                              type="text"
+                              value={currentDesc}
+                              onChange={(e) => {
+                                const newList = content.features_list ? [...content.features_list] : defaultTitles.map((t, i) => ({ title: t, desc: defaultDescs[i] }));
+                                if (!newList[idx]) newList[idx] = { title: '', desc: '' };
+                                newList[idx].desc = e.target.value;
+                                setContent({ ...content, features_list: newList });
+                              }}
+                              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
             </div>
           )}
           {activeTab === 'program' && (
@@ -480,8 +605,39 @@ export const PublicSettingsAdmin: React.FC = () => {
             <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
               <div>
                 <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mb-1">Pengaturan Galeri Kegiatan</h3>
-                <p className="text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6">Atur foto-foto dokumentasi kegiatan yang akan ditampilkan pada slider galeri.</p>
+                <p className="text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6">Atur judul, deskripsi, dan foto-foto dokumentasi kegiatan yang akan ditampilkan pada slider galeri.</p>
               </div>
+
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Judul Galeri (Baris 1)</label>
+                  <input
+                    type="text"
+                    value={content.gallery_title_1 || 'Keseruan Belajar Bersama'}
+                    onChange={(e) => setContent({ ...content, gallery_title_1: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Judul Galeri (Baris 2 / Highlight)</label>
+                  <input
+                    type="text"
+                    value={content.gallery_title_2 || 'Bimbel Alberta'}
+                    onChange={(e) => setContent({ ...content, gallery_title_2: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Deskripsi Galeri</label>
+                  <textarea
+                    value={content.gallery_desc || 'Kami percaya bahwa lingkungan belajar yang menyenangkan adalah kunci utama untuk menyerap ilmu dengan baik. Di Bimbel Alberta, setiap sesi dirancang interaktif agar siswa tidak hanya menghafal, tetapi benar-benar memahami konsep.'}
+                    onChange={(e) => setContent({ ...content, gallery_desc: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all resize-none"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-6">
                 {(content.gallery_items || []).map((item: any, idx: number) => (
                   <div key={idx} className="bg-slate-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 space-y-4 relative">
@@ -591,6 +747,314 @@ export const PublicSettingsAdmin: React.FC = () => {
                   Tambah Foto Kegiatan
                 </button>
               </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 mb-1">Daftar Sorotan Kegiatan</h4>
+                  <p className="text-xs text-slate-500 mb-4">Ubah 3 poin deskriptif di samping foto galeri.</p>
+                </div>
+                
+                <div className="space-y-4">
+                  {[0, 1, 2].map((idx) => {
+                    const defaultTitles = ["Fasilitas Modern & Nyaman", "Pendampingan Intensif", "Metode Interaktif"];
+                    const defaultDescs = [
+                      "Ruang ber-AC yang kondusif mendukung fokus siswa.",
+                      "Tentor selalu siap membantu siswa yang kesulitan.",
+                      "Belajar tidak lagi membosankan dengan diskusi dua arah."
+                    ];
+                    
+                    const currentTitle = content.gallery_points && content.gallery_points[idx] ? content.gallery_points[idx].title : defaultTitles[idx];
+                    const currentDesc = content.gallery_points && content.gallery_points[idx] ? content.gallery_points[idx].desc : defaultDescs[idx];
+                    
+                    return (
+                      <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                        <div className="md:col-span-1">
+                          <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Judul {idx + 1}</label>
+                          <input
+                            type="text"
+                            value={currentTitle}
+                            onChange={(e) => {
+                              const newList = content.gallery_points ? [...content.gallery_points] : defaultTitles.map((t, i) => ({ title: t, desc: defaultDescs[i] }));
+                              if (!newList[idx]) newList[idx] = { title: '', desc: '' };
+                              newList[idx].title = e.target.value;
+                              setContent({ ...content, gallery_points: newList });
+                            }}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Deskripsi {idx + 1}</label>
+                          <input
+                            type="text"
+                            value={currentDesc}
+                            onChange={(e) => {
+                              const newList = content.gallery_points ? [...content.gallery_points] : defaultTitles.map((t, i) => ({ title: t, desc: defaultDescs[i] }));
+                              if (!newList[idx]) newList[idx] = { title: '', desc: '' };
+                              newList[idx].desc = e.target.value;
+                              setContent({ ...content, gallery_points: newList });
+                            }}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 mb-1">Tautan Media Sosial</h4>
+                  <p className="text-xs text-slate-500 mb-4">Atur tautan untuk tombol Instagram dan TikTok di bagian galeri.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Instagram URL</label>
+                    <input
+                      type="url"
+                      value={content.social_links?.instagram || ''}
+                      onChange={(e) => setContent({ ...content, social_links: { ...(content.social_links || {}), instagram: e.target.value } })}
+                      placeholder="https://instagram.com/..."
+                      className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">TikTok URL</label>
+                    <input
+                      type="url"
+                      value={content.social_links?.tiktok || ''}
+                      onChange={(e) => setContent({ ...content, social_links: { ...(content.social_links || {}), tiktok: e.target.value } })}
+                      placeholder="https://tiktok.com/..."
+                      className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {activeTab === 'about' && (
+            <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
+              <div>
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mb-1">Pengaturan Tentang Kami</h3>
+                <p className="text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6">Atur judul dan deskripsi pada bagian Tentang Kami.</p>
+              </div>
+
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Judul (Baris 1)</label>
+                  <input
+                    type="text"
+                    value={content.about_title_1 || 'Belajar, Berkembang, Bertumbuh Bersama'}
+                    onChange={(e) => setContent({ ...content, about_title_1: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Judul (Baris 2 / Highlight)</label>
+                  <input
+                    type="text"
+                    value={content.about_title_2 || 'Alberta'}
+                    onChange={(e) => setContent({ ...content, about_title_2: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Deskripsi Paragraf 1</label>
+                  <textarea
+                    value={content.about_desc_1 || 'Bimbel Alberta Bondowoso merupakan lembaga bimbingan belajar yang berlokasi di pusat Kota Bondowoso. Berdiri sejak Juli 2025, Alberta hadir sebagai tempat belajar yang mendampingi peserta didik mulai dari jenjang TK, SD, hingga SMP.'}
+                    onChange={(e) => setContent({ ...content, about_desc_1: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Deskripsi Paragraf 2</label>
+                  <textarea
+                    value={content.about_desc_2 || 'Alberta berkomitmen menciptakan lingkungan belajar yang nyaman, menyenangkan, dan mendukung setiap anak untuk memahami materi pelajaran, mengembangkan potensi, serta membangun kepercayaan diri dalam belajar.'}
+                    onChange={(e) => setContent({ ...content, about_desc_2: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 mb-1">Visi & Misi</h4>
+                  <p className="text-xs text-slate-500 mb-4">Atur visi dan 5 poin misi bimbingan belajar.</p>
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Visi Kami</label>
+                  <textarea
+                    value={content.visi_text || 'Menjadi lembaga bimbingan belajar yang terpercaya dalam mendampingi peserta didik meraih prestasi akademik sekaligus mengembangkan karakter yang positif.'}
+                    onChange={(e) => setContent({ ...content, visi_text: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all resize-none"
+                  />
+                </div>
+                
+                <div className="space-y-3 pt-3">
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Misi Kami (5 Poin)</label>
+                  {[0, 1, 2, 3, 4].map((idx) => {
+                    const defaultMisi = [
+                      "Menyediakan pembelajaran yang efektif, menyenangkan, dan mudah dipahami.",
+                      "Membimbing peserta didik sesuai dengan kebutuhan dan kemampuan masing-masing.",
+                      "Menumbuhkan semangat belajar, rasa percaya diri, dan kemandirian.",
+                      "Membangun komunikasi yang baik antara tutor, peserta didik, dan orang tua.",
+                      "Menciptakan lingkungan belajar yang aman, nyaman, dan inspiratif."
+                    ];
+                    return (
+                      <div key={idx} className="flex gap-3 items-start">
+                        <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0 mt-1">{idx + 1}</span>
+                        <input
+                          type="text"
+                          value={content.misi_list && content.misi_list[idx] ? content.misi_list[idx] : defaultMisi[idx]}
+                          onChange={(e) => {
+                            const newList = content.misi_list ? [...content.misi_list] : [...defaultMisi];
+                            newList[idx] = e.target.value;
+                            setContent({ ...content, misi_list: newList });
+                          }}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'faq' && (
+            <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
+              <div>
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mb-1">Pengaturan FAQ</h3>
+                <p className="text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6">Atur teks utama pada bagian Pertanyaan yang Sering Diajukan.</p>
+              </div>
+
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Judul FAQ</label>
+                  <input
+                    type="text"
+                    value={content.faq_title || 'Pertanyaan yang Sering Diajukan'}
+                    onChange={(e) => setContent({ ...content, faq_title: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Deskripsi Singkat FAQ</label>
+                  <textarea
+                    value={content.faq_desc || 'Temukan jawaban lengkap mengenai pendaftaran, program TK, SD & SMP, serta sistem laporan kami.'}
+                    onChange={(e) => setContent({ ...content, faq_desc: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {(content.faqs || [
+                  { id: 'faq-1', category: 'Umum', question: 'Di mana lokasi Bimbel Alberta?', answer: 'Bimbel Alberta berlokasi di Jl. PB Sudirman No. 45, Blindungan, Bondowoso. Lokasinya sangat strategis dan mudah diakses dari pusat kota.' },
+                  { id: 'faq-2', category: 'Pendaftaran', question: 'Bagaimana cara mendaftar di Bimbel Alberta?', answer: 'Pendaftaran dapat dilakukan dengan mengisi form pendaftaran di website ini yang akan terhubung ke WhatsApp Admin kami, atau datang langsung ke kantor kami.' },
+                  { id: 'faq-3', category: 'Program SD', question: 'Mata pelajaran apa saja yang diajarkan untuk tingkat SD?', answer: 'Fokus utama kami adalah Matematika, Ilmu Pengetahuan Alam (IPA), dan Bahasa Inggris untuk jenjang SD. Kami juga ada persiapan khusus OSN.' },
+                  { id: 'faq-4', category: 'Laporan Belajar', question: 'Bagaimana orang tua bisa memantau perkembangan anak?', answer: 'Setiap orang tua akan diberikan akses ke Portal Albertian. Di sana, orang tua dapat melihat laporan bulanan dari tentor yang berisi nilai, tingkat pemahaman, serta catatan khusus.' }
+                ]).map((item: any, idx: number) => (
+                  <div key={item.id} className="bg-slate-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 space-y-4 relative">
+                    <button 
+                      onClick={() => {
+                        const newFaqs = content.faqs ? [...content.faqs] : [];
+                        newFaqs.splice(idx, 1);
+                        setContent({ ...content, faqs: newFaqs });
+                      }}
+                      className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors cursor-pointer"
+                      title="Hapus Item"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">{idx + 1}</span>
+                      <h4 className="font-bold text-slate-900">FAQ {idx + 1}</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1.5">Pertanyaan</label>
+                        <input
+                          type="text"
+                          value={item.question || ''}
+                          onChange={(e) => {
+                            const newFaqs = content.faqs ? [...content.faqs] : [];
+                            if (newFaqs[idx]) {
+                                newFaqs[idx].question = e.target.value;
+                                setContent({ ...content, faqs: newFaqs });
+                            }
+                          }}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1.5">Kategori</label>
+                        <input
+                          type="text"
+                          value={item.category || ''}
+                          onChange={(e) => {
+                            const newFaqs = content.faqs ? [...content.faqs] : [];
+                            if (newFaqs[idx]) {
+                                newFaqs[idx].category = e.target.value;
+                                setContent({ ...content, faqs: newFaqs });
+                            }
+                          }}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1.5">Jawaban</label>
+                      <textarea
+                        value={item.answer || ''}
+                        onChange={(e) => {
+                          const newFaqs = content.faqs ? [...content.faqs] : [];
+                          if (newFaqs[idx]) {
+                              newFaqs[idx].answer = e.target.value;
+                              setContent({ ...content, faqs: newFaqs });
+                          }
+                        }}
+                        rows={3}
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 rounded-xl text-sm transition-all resize-none"
+                      />
+                    </div>
+                  </div>
+                ))}
+                
+                <button
+                  onClick={() => {
+                    const defaultFaqs = [
+                      { id: 'faq-1', category: 'Umum', question: 'Di mana lokasi Bimbel Alberta?', answer: 'Bimbel Alberta berlokasi di Jl. PB Sudirman No. 45, Blindungan, Bondowoso. Lokasinya sangat strategis dan mudah diakses dari pusat kota.' },
+                      { id: 'faq-2', category: 'Pendaftaran', question: 'Bagaimana cara mendaftar di Bimbel Alberta?', answer: 'Pendaftaran dapat dilakukan dengan mengisi form pendaftaran di website ini yang akan terhubung ke WhatsApp Admin kami, atau datang langsung ke kantor kami.' },
+                      { id: 'faq-3', category: 'Program SD', question: 'Mata pelajaran apa saja yang diajarkan untuk tingkat SD?', answer: 'Fokus utama kami adalah Matematika, Ilmu Pengetahuan Alam (IPA), dan Bahasa Inggris untuk jenjang SD. Kami juga ada persiapan khusus OSN.' },
+                      { id: 'faq-4', category: 'Laporan Belajar', question: 'Bagaimana orang tua bisa memantau perkembangan anak?', answer: 'Setiap orang tua akan diberikan akses ke Portal Albertian. Di sana, orang tua dapat melihat laporan bulanan dari tentor yang berisi nilai, tingkat pemahaman, serta catatan khusus.' }
+                    ];
+                    const currentFaqs = content.faqs || defaultFaqs;
+                    const newFaqs = [...currentFaqs, {
+                      id: `faq-${Date.now()}`,
+                      category: 'Umum',
+                      question: 'Pertanyaan Baru?',
+                      answer: 'Jawaban untuk pertanyaan baru.'
+                    }];
+                    setContent({ ...content, faqs: newFaqs });
+                  }}
+                  className="w-full py-3 sm:py-4 border-2 border-dashed border-slate-200 text-slate-500 hover:text-purple-600 hover:bg-purple-50 hover:border-purple-300 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-5 h-5" />
+                  Tambah FAQ
+                </button>
+              </div>
+
             </div>
           )}
         </div>

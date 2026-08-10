@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { FaqItem } from '../../types';
+import { useApp } from '../../context/AppContext';
 
 const FAQS: FaqItem[] = [
   {
@@ -25,18 +26,22 @@ const FAQS: FaqItem[] = [
     id: 'faq-4',
     category: 'Laporan Belajar',
     question: 'Bagaimana orang tua bisa memantau perkembangan anak?',
-    answer: 'Setiap orang tua akan diberikan akses ke Portal Albertian. Di sana, orang tua dapat melihat laporan mingguan dari tentor yang berisi nilai, tingkat pemahaman, serta catatan khusus.'
+    answer: 'Setiap orang tua akan diberikan akses ke Portal Albertian. Di sana, orang tua dapat melihat laporan bulanan dari tentor yang berisi nilai, tingkat pemahaman, serta catatan khusus.'
   }
 ];
 
 export const FaqSection: React.FC = () => {
+  const { publicContent } = useApp();
   const [openId, setOpenId] = useState<string | null>('faq-1');
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
 
-  const categories = ['Semua', 'Umum', 'Laporan Belajar', 'Pendaftaran', 'Program TK', 'Program SD', 'Program SMP'];
+  const faqsList = publicContent?.faqs?.length > 0 ? publicContent.faqs : FAQS;
 
-  const filteredFaqs = FAQS.filter(
-    (faq) => selectedCategory === 'Semua' || faq.category === selectedCategory
+  // Extract unique categories from faqsList dynamically and prepend 'Semua'
+  const dynamicCategories = ['Semua', ...Array.from(new Set(faqsList.map((faq: FaqItem) => faq.category)))];
+
+  const filteredFaqs = faqsList.filter(
+    (faq: FaqItem) => selectedCategory === 'Semua' || faq.category === selectedCategory
   );
 
   const toggleFaq = (id: string) => {
@@ -44,21 +49,21 @@ export const FaqSection: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-16 lg:py-24 bg-white relative">
+    <section id="faq" className="py-12 lg:py-16 bg-white relative">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center space-y-4 mb-10 lg:mb-16">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Pertanyaan yang Sering Diajukan
+          <h2 className="text-2xl sm:text-3xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
+            {publicContent?.faq_title || 'Pertanyaan yang Sering Diajukan'}
           </h2>
           <p className="text-slate-600 text-base sm:text-lg">
-            Temukan jawaban lengkap mengenai pendaftaran, program TK, SD & SMP, serta sistem laporan kami.
+            {publicContent?.faq_desc || 'Temukan jawaban lengkap mengenai pendaftaran, program TK, SD & SMP, serta sistem laporan kami.'}
           </p>
 
           {/* Category Filter Pills */}
           <div className="pt-6 hidden sm:flex flex-wrap items-center justify-center gap-3">
-            {categories.map((cat) => (
+            {(dynamicCategories as string[]).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}

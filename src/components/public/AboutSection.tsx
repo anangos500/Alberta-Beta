@@ -8,7 +8,7 @@ export const AboutSection: React.FC = () => {
 
   return (
     <section id="tentang" className="pt-12 pb-24 sm:pt-16 sm:pb-32 bg-white relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
         
         {/* Section 1: Siapa Kami */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -16,15 +16,17 @@ export const AboutSection: React.FC = () => {
             <div>
               <h4 className="text-purple-600 font-semibold tracking-wider uppercase text-sm mb-3">Tentang Kami</h4>
               <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
-                Belajar, Berkembang, Bertumbuh Bersama <span className="text-purple-600">Alberta</span>
+                {publicContent?.about_title_1 || 'Belajar, Berkembang, Bertumbuh Bersama'} <span className="text-purple-600">{publicContent?.about_title_2 || 'Alberta'}</span>
               </h2>
             </div>
             <div className="prose prose-lg text-slate-600 leading-relaxed">
               <p className="mb-4">
-                <strong className="text-slate-900 font-bold">Bimbel Alberta Bondowoso</strong> merupakan lembaga bimbingan belajar yang berlokasi di pusat Kota Bondowoso. Berdiri sejak Juli 2025, Alberta hadir sebagai tempat belajar yang mendampingi peserta didik mulai dari jenjang TK, SD, hingga SMP.
+                {publicContent?.about_desc_1 || (
+                  <><strong className="text-slate-900 font-bold">Bimbel Alberta Bondowoso</strong> merupakan lembaga bimbingan belajar yang berlokasi di pusat Kota Bondowoso. Berdiri sejak Juli 2025, Alberta hadir sebagai tempat belajar yang mendampingi peserta didik mulai dari jenjang TK, SD, hingga SMP.</>
+                )}
               </p>
               <p>
-                Alberta berkomitmen menciptakan lingkungan belajar yang nyaman, menyenangkan, dan mendukung setiap anak untuk memahami materi pelajaran, mengembangkan potensi, serta membangun kepercayaan diri dalam belajar.
+                {publicContent?.about_desc_2 || 'Alberta berkomitmen menciptakan lingkungan belajar yang nyaman, menyenangkan, dan mendukung setiap anak untuk memahami materi pelajaran, mengembangkan potensi, serta membangun kepercayaan diri dalam belajar.'}
               </p>
             </div>
           </div>
@@ -66,7 +68,7 @@ export const AboutSection: React.FC = () => {
              <Target className="w-10 h-10 text-purple-600 mb-8" />
              <h3 className="text-3xl font-extrabold text-slate-900 mb-6 tracking-tight">Visi Kami</h3>
              <p className="text-xl text-slate-700 leading-relaxed font-medium">
-               Menjadi lembaga bimbingan belajar yang terpercaya dalam mendampingi peserta didik meraih prestasi akademik sekaligus mengembangkan karakter yang positif.
+               {publicContent?.visi_text || 'Menjadi lembaga bimbingan belajar yang terpercaya dalam mendampingi peserta didik meraih prestasi akademik sekaligus mengembangkan karakter yang positif.'}
              </p>
           </div>
           
@@ -76,13 +78,13 @@ export const AboutSection: React.FC = () => {
              <Compass className="w-10 h-10 text-purple-400 mb-8" />
              <h3 className="text-3xl font-extrabold mb-8 tracking-tight">Misi Kami</h3>
              <ul className="space-y-5 text-slate-300">
-               {[
+               {(publicContent?.misi_list?.length > 0 ? publicContent.misi_list : [
                  "Menyediakan pembelajaran yang efektif, menyenangkan, dan mudah dipahami.",
                  "Membimbing peserta didik sesuai dengan kebutuhan dan kemampuan masing-masing.",
                  "Menumbuhkan semangat belajar, rasa percaya diri, dan kemandirian.",
                  "Membangun komunikasi yang baik antara tutor, peserta didik, dan orang tua.",
                  "Menciptakan lingkungan belajar yang aman, nyaman, dan inspiratif."
-               ].map((item, i) => (
+               ]).map((item: string, i: number) => (
                  <li key={i} className="flex gap-4">
                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
                      <Sparkles className="w-3.5 h-3.5 text-purple-400" />
@@ -143,7 +145,7 @@ export const AboutSection: React.FC = () => {
            </div>
            <div className="bg-purple-50 p-10 sm:p-14 rounded-[2.5rem]">
              <p className="text-purple-600 font-bold tracking-widest uppercase text-sm mb-6">Motto Kami</p>
-             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-purple-900 leading-tight">
+             <h3 className="text-2xl sm:text-3xl lg:text-3xl font-black text-purple-900 leading-tight">
                "Belajar, Berkembang, Bertumbuh Bersama Alberta"
              </h3>
            </div>
