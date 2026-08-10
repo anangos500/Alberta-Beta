@@ -57,7 +57,16 @@ export const TentorDashboard: React.FC = () => {
 
   const today = new Date().toLocaleDateString('id-ID', { weekday: 'long' });
 
-  const myJadwalToday = myJadwal.filter(j => j.hari.toLowerCase() === today.toLowerCase());
+  const uniqueJadwalToday = new Map();
+  myJadwal
+    .filter(j => j.hari.toLowerCase() === today.toLowerCase())
+    .forEach(j => {
+      const key = `${j.jamMulai}-${j.studentIds?.[0]}-${j.mataPelajaran}`;
+      if (!uniqueJadwalToday.has(key)) {
+        uniqueJadwalToday.set(key, j);
+      }
+    });
+  const myJadwalToday = Array.from(uniqueJadwalToday.values()).sort((a, b) => (a.jamMulai || '').localeCompare(b.jamMulai || ''));
 
   const handleOpenNewReport = (student: Student, week?: number) => {
     setSelectedStudentForReport(student);
@@ -198,7 +207,15 @@ export const TentorDashboard: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {myJadwal.map((schedule) => {
+            {Array.from(new Map(myJadwal.map(j => [`${j.hari.toLowerCase()}-${j.jamMulai}-${j.studentIds?.[0]}-${j.mataPelajaran}`, j])).values())
+              .sort((a, b) => {
+                const dayOrder: Record<string, number> = { 'senin': 1, 'selasa': 2, 'rabu': 3, 'kamis': 4, 'jumat': 5, 'sabtu': 6, 'minggu': 7 };
+                const dayA = dayOrder[(a.hari || '').toLowerCase()] || 99;
+                const dayB = dayOrder[(b.hari || '').toLowerCase()] || 99;
+                if (dayA !== dayB) return dayA - dayB;
+                return (a.jamMulai || '').localeCompare(b.jamMulai || '');
+              })
+              .map((schedule) => {
               const studentId = schedule.studentIds?.[0] || (schedule as any).student_id;
               const student = students.find(s => s.id === studentId);
               const jenjangInfo = student ? `${student.jenjang} Kelas ${student.kelas} - ${student.nama}` : 'Bimbingan Belajar';
@@ -225,7 +242,7 @@ export const TentorDashboard: React.FC = () => {
                 </div>
               </div>
             )})}
-            {myJadwal.length === 0 && (
+            {myJadwal.filter(j => !j.mingguKe || j.mingguKe === currentWeek).length === 0 && (
               <div className="col-span-full py-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                 <span className="font-bold">Belum ada jadwal mengajar.</span>
               </div>
@@ -257,9 +274,6 @@ export const TentorDashboard: React.FC = () => {
               const hasLatestReport = myReports.some(
                 (r) => r.studentId === student.id && r.mingguKe === currentWeek && r.tanggalPembelajaran === currentMonthStr
               );
-
-              const missedWeeks = Array.from({ length: 5 }, (_, i) => i + 1)
-                .filter(week => week !== currentWeek && !myReports.some(r => r.studentId === student.id && r.mingguKe === week && r.tanggalPembelajaran === currentMonthStr));
 
               return (
                 <div
@@ -302,27 +316,6 @@ export const TentorDashboard: React.FC = () => {
                       <div className="text-[10px] text-center font-extrabold text-green-600 flex items-center justify-center gap-1 uppercase tracking-wider bg-green-50 py-1.5 rounded-lg border border-green-100">
                         <CheckCircle className="w-3.5 h-3.5" />
                         Laporan M-{currentWeek} Terisi
-                      </div>
-                    )}
-                    
-                    {missedWeeks.length > 0 && (
-                      <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
-                          Laporan Belum Terisi
-                        </span>
-                        <div className="flex flex-wrap justify-center gap-2">
-                          {missedWeeks.map(week => (
-                            <button
-                              key={week}
-                              onClick={() => handleOpenNewReport(student, week)}
-                              className="py-1 px-2.5 rounded-lg font-bold text-[10px] text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all flex items-center gap-1 cursor-pointer"
-                              title={`Isi laporan bulan ke-${week}`}
-                            >
-                              <AlertCircle className="w-3 h-3" />
-                              M-{week}
-                            </button>
-                          ))}
-                        </div>
                       </div>
                     )}
                   </div>

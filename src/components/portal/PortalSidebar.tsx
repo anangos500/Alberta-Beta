@@ -164,7 +164,7 @@ export const PortalSidebar: React.FC = () => {
               }`}
             >
               <PlusCircle className="w-4 h-4 shrink-0" />
-              <span className="leading-tight">Isi Laporan Minggu Ini</span>
+              <span className="leading-tight">Isi Laporan Bulan Ini</span>
             </button>
 
             <button
