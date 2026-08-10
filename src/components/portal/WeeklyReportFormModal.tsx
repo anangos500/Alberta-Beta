@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Upload, Image, Sparkles, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Save, Upload, Image, Sparkles, CheckCircle, AlertCircle, Loader2, Plus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Student, WeeklyReport, WeeklyRatings } from '../../types';
 import { uploadImageToSupabase } from '../../lib/imageUpload';
@@ -20,10 +20,14 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
   preselectedWeek,
   editingReport
 }) => {
-  const { students, currentUser, addWeeklyReport, updateWeeklyReport, reports } = useApp();
+  const { students, currentUser, addWeeklyReport, updateWeeklyReport, reports, jadwalList } = useApp();
 
-  // Active student list for selection (only active students)
-  const activeStudents = students.filter((s) => s.status === 'aktif');
+  // Get student IDs assigned to this tentor via Jadwal
+  const myJadwal = jadwalList.filter(j => j.tentorId === currentUser?.id);
+  const myJadwalStudentIds = new Set(myJadwal.flatMap(j => j.studentIds || []));
+
+  // Active student list for selection (only active students assigned to this tentor)
+  const activeStudents = students.filter((s) => s.status === 'aktif' && myJadwalStudentIds.has(s.id));
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [mingguKe, setMingguKe] = useState<number>(preselectedWeek || Math.ceil(new Date().getDate() / 7));
@@ -35,20 +39,29 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
     );
   });
 
+  const [bulan, setBulan] = useState<string>(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [tanggal, setTanggal] = useState<string>(new Date().toISOString().split('T')[0]);
   const [hari, setHari] = useState<string>('Selasa');
   const [mataPelajaran, setMataPelajaran] = useState<string>('Matematika & IPA');
   const [materi, setMateri] = useState<string>('');
 
-  // 7 Ratings State
+  // Ratings State
   const [ratings, setRatings] = useState<WeeklyRatings>({
-    pemahamanMateri: 'Sangat Baik',
-    kemampuanSoal: 'Tepat dan Cepat',
-    keaktifan: 'Sangat Aktif',
-    kemandirian: 'Mandiri',
-    interaksi: 'Sangat Baik',
-    sikap: 'Sangat Disiplin',
-    keterampilanCatat: 'Rapi dan Lengkap',
+    subjects: [
+      {
+        mataPelajaran: '',
+        pemahamanMateri: 'Sangat Baik',
+        kemampuanSoal: 'Tepat dan Cepat',
+        keaktifan: 'Sangat Aktif',
+        kemandirian: 'Sangat Mandiri',
+        interaksi: 'Sangat Baik',
+        sikap: 'Sangat Disiplin',
+        keterampilanCatat: 'Cepat, Rapi, dan Lengkap',
+      }
+    ]
   });
 
   const [targetBerikutnya, setTargetBerikutnya] = useState<string>('');
@@ -58,6 +71,51 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const [isUploading, setIsUploading] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
+
+  // Templates
+  const [targetTemplates, setTargetTemplates] = useState<string[]>([]);
+  const [saranTemplates, setSaranTemplates] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (currentUser && currentUser.id) {
+      try {
+        const storedTarget = localStorage.getItem(`targetTemplates_${currentUser.id}`);
+        if (storedTarget) setTargetTemplates(JSON.parse(storedTarget));
+        const storedSaran = localStorage.getItem(`saranTemplates_${currentUser.id}`);
+        if (storedSaran) setSaranTemplates(JSON.parse(storedSaran));
+      } catch (e) {
+        console.error('Failed to parse templates', e);
+      }
+    }
+  }, [currentUser]);
+
+  const handleSaveTemplate = (type: 'target' | 'saran', text: string) => {
+    if (!text.trim() || !currentUser) return;
+    if (type === 'target') {
+      const newTemplates = [text, ...targetTemplates.filter(t => t !== text)].slice(0, 3);
+      setTargetTemplates(newTemplates);
+      localStorage.setItem(`targetTemplates_${currentUser.id}`, JSON.stringify(newTemplates));
+    } else {
+      const newTemplates = [text, ...saranTemplates.filter(t => t !== text)].slice(0, 3);
+      setSaranTemplates(newTemplates);
+      localStorage.setItem(`saranTemplates_${currentUser.id}`, JSON.stringify(newTemplates));
+    }
+  };
+
+  const handleRemoveTemplate = (type: 'target' | 'saran', index: number) => {
+    if (!currentUser) return;
+    if (type === 'target') {
+      const newTemplates = [...targetTemplates];
+      newTemplates.splice(index, 1);
+      setTargetTemplates(newTemplates);
+      localStorage.setItem(`targetTemplates_${currentUser.id}`, JSON.stringify(newTemplates));
+    } else {
+      const newTemplates = [...saranTemplates];
+      newTemplates.splice(index, 1);
+      setSaranTemplates(newTemplates);
+      localStorage.setItem(`saranTemplates_${currentUser.id}`, JSON.stringify(newTemplates));
+    }
+  };
 
   const suggestedPhotos = React.useMemo(() => {
     if (!currentUser || currentUser.role !== 'tentor') return [];
@@ -87,11 +145,34 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
     if (editingReport) {
       setSelectedStudentId(editingReport.studentId);
       setMingguKe(editingReport.mingguKe);
+      if (editingReport.tanggalPembelajaran && editingReport.tanggalPembelajaran.length >= 7) {
+        setBulan(editingReport.tanggalPembelajaran.substring(0, 7));
+      }
       setTanggal(editingReport.tanggalPembelajaran);
       setHari(editingReport.hari);
       setMataPelajaran(editingReport.mataPelajaran);
       setMateri(editingReport.materi);
-      setRatings(editingReport.ratings);
+      const loadedRatings = editingReport.ratings;
+      if (!loadedRatings.subjects || loadedRatings.subjects.length === 0) {
+        // Fallback for legacy reports
+        setRatings({
+          ...loadedRatings,
+          subjects: [
+            {
+              mataPelajaran: editingReport.mataPelajaran || '',
+              pemahamanMateri: loadedRatings.pemahamanMateri || 'Sangat Baik',
+              kemampuanSoal: loadedRatings.kemampuanSoal || 'Tepat dan Cepat',
+              keaktifan: loadedRatings.keaktifan || 'Sangat Aktif',
+              kemandirian: loadedRatings.kemandirian || 'Sangat Mandiri',
+              interaksi: loadedRatings.interaksi || 'Sangat Baik',
+              sikap: loadedRatings.sikap || 'Sangat Disiplin',
+              keterampilanCatat: loadedRatings.keterampilanCatat || 'Cepat, Rapi, dan Lengkap',
+            }
+          ]
+        });
+      } else {
+        setRatings(loadedRatings);
+      }
       setTargetBerikutnya(editingReport.targetBerikutnya);
       setSaranTentor(editingReport.saranTentor);
       setPhotos(editingReport.dokumentasiFoto || []);
@@ -126,6 +207,44 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
   if (!isOpen) return null;
 
   const currentStudent = students.find((s) => s.id === selectedStudentId);
+
+  const handleAddSubject = () => {
+    const subjects = ratings.subjects || [];
+    setRatings({
+      ...ratings,
+      subjects: [
+        ...subjects,
+        {
+          mataPelajaran: '',
+          pemahamanMateri: 'Sangat Baik',
+          kemampuanSoal: 'Tepat dan Cepat',
+          keaktifan: 'Sangat Aktif',
+          kemandirian: 'Sangat Mandiri',
+          interaksi: 'Sangat Baik',
+          sikap: 'Sangat Disiplin',
+          keterampilanCatat: 'Cepat, Rapi, dan Lengkap',
+        }
+      ]
+    });
+  };
+
+  const handleRemoveSubject = (index: number) => {
+    const subjects = ratings.subjects || [];
+    if (subjects.length <= 1) return; // minimal 1
+    const newSubjects = [...subjects];
+    newSubjects.splice(index, 1);
+    setRatings({ ...ratings, subjects: newSubjects });
+  };
+
+  const handleSubjectChange = (index: number, field: keyof SubjectRating, value: string) => {
+    const subjects = ratings.subjects || [];
+    const newSubjects = [...subjects];
+    newSubjects[index] = {
+      ...newSubjects[index],
+      [field]: value
+    };
+    setRatings({ ...ratings, subjects: newSubjects });
+  };
 
   const handleAddPresetPhoto = (url: string) => {
     if (photos.length >= 3) {
@@ -201,10 +320,10 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       tentorId: currentUser?.id || '',
       tentorNama: currentUser?.nama || 'Kak Alberta Fitriani, S.Pd.',
       mingguKe: Number(mingguKe),
-      tanggalPembelajaran: tanggal,
+      tanggalPembelajaran: bulan,
       hari: hari,
-      mataPelajaran: mataPelajaran,
-      materi: materi || 'Pendampingan Soal & Ulangan Harian',
+      mataPelajaran: ratings.subjects ? ratings.subjects.map(s => s.mataPelajaran).filter(m => m.trim() !== '').join(', ') : (mataPelajaran || '-'),
+      materi: '-',
       ratings: ratings,
       targetBerikutnya: targetBerikutnya || 'Siswa diharapkan dapat menyelesaikan soal latihan secara mandiri.',
       saranTentor: saranTentor || 'Mohon melatih pengerjaan soal 10-15 menit setiap hari di rumah.',
@@ -227,7 +346,9 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-      <div className="bg-white rounded-3xl max-w-3xl w-full shadow-sm border border-stone-200 relative animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-full" onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-white rounded-3xl w-full shadow-sm border border-stone-200 relative animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-full ${
+        (ratings.subjects || []).length > 3 ? 'max-w-7xl 2xl:max-w-[95vw]' : 'max-w-4xl'
+      }`} onClick={(e) => e.stopPropagation()}>
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-200 p-6 sm:p-8 shrink-0">
@@ -237,7 +358,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
               <span>Formulir Tentor Alberta</span>
             </div>
             <h3 className="text-xl font-bold text-stone-800 font-serif">
-              {editingReport ? 'Edit Laporan Belajar Mingguan' : 'Input Laporan Perkembangan Belajar Mingguan'}
+              {editingReport ? 'Edit Laporan Belajar Bulanan' : 'Input Laporan Perkembangan Belajar Bulanan'}
             </h3>
           </div>
           <button
@@ -259,7 +380,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
               Informasi Pembelajaran
             </h4>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
                   Pilih Siswa Bimbel *
@@ -270,7 +391,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
                 >
                   {filteredStudents.length === 0 && (
-                    <option value="" disabled>Semua siswa sudah dinilai minggu ini</option>
+                    <option value="" disabled>Semua siswa sudah dinilai bulan ini</option>
                   )}
                   {filteredStudents.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -282,268 +403,180 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
 
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
-                  Minggu Ke- *
-                </label>
-                <select
-                  value={mingguKe}
-                  onChange={(e) => setMingguKe(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
-                >
-                  <option value={1}>Minggu ke-1</option>
-                  <option value={2}>Minggu ke-2</option>
-                  <option value={3}>Minggu ke-3</option>
-                  <option value={4}>Minggu ke-4</option>
-                  <option value={5}>Minggu ke-5</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  Tanggal Pembelajaran *
+                  Bulan *
                 </label>
                 <input
-                  type="date"
+                  type="month"
                   required
-                  value={tanggal}
-                  onChange={(e) => setTanggal(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Hari *</label>
-                <select
-                  value={hari}
-                  onChange={(e) => setHari(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
-                >
-                  <option value="Senin">Senin</option>
-                  <option value="Selasa">Selasa</option>
-                  <option value="Rabu">Rabu</option>
-                  <option value="Kamis">Kamis</option>
-                  <option value="Jumat">Jumat</option>
-                  <option value="Sabtu">Sabtu</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Mata Pelajaran *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Matematika & Pendampingan PR"
-                  value={mataPelajaran}
-                  onChange={(e) => setMataPelajaran(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Materi Dipelajari *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Pecahan Campuran & Perkalian"
-                  value={materi}
-                  onChange={(e) => setMateri(e.target.value)}
+                  value={bulan}
+                  onChange={(e) => setBulan(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 bg-white"
                 />
               </div>
             </div>
           </div>
 
-          {/* SECTION B: Penilaian Perkembangan Belajar (7 Aspek) */}
+          {/* SECTION B: Penilaian Perkembangan Belajar */}
           <div className="space-y-6">
             <h4 className="font-bold text-stone-800 text-sm uppercase tracking-wider flex items-center gap-2 border-b border-stone-200 pb-2">
               <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs border border-teal-200">B</span>
-              Penilaian Perkembangan Belajar (7 Aspek)
+              Penilaian Perkembangan Belajar
             </h4>
 
-            {/* 1. Pemahaman Materi */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-stone-800">
-                1. Pemahaman Materi *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(['Sangat Baik', 'Baik', 'Cukup', 'Perlu Bimbingan'] as const).map((opt) => (
-                  <button
-                    type="button"
-                    key={opt}
-                    onClick={() => setRatings({ ...ratings, pemahamanMateri: opt })}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer ${
-                      ratings.pemahamanMateri === opt
-                        ? 'bg-teal-200 text-teal-900 border-teal-300'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    {opt}
-                  </button>
+            {/* Subject Specific Ratings */}
+            <div className="space-y-4">
+              <h5 className="font-bold text-stone-700 text-sm border-b border-stone-200 pb-2 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span>Penilaian Per Mata Pelajaran</span>
+                  <span className="text-[10px] font-normal text-stone-500 mt-1">
+                    Keterangan: <strong className="font-bold text-stone-700">SB</strong> (Sangat Baik), <strong className="font-bold text-stone-700">B</strong> (Baik), <strong className="font-bold text-stone-700">C</strong> (Cukup), <strong className="font-bold text-stone-700">PB</strong> (Perlu Bimbingan)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddSubject}
+                  className="text-xs text-teal-600 font-bold hover:text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1 shrink-0 ml-2"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Tambah Mapel
+                </button>
+              </h5>
+              
+              <div className="flex overflow-x-auto gap-4 pb-4 snap-x">
+                {(ratings.subjects || []).map((subject, index) => (
+                  <div key={index} className={`flex-none w-[85vw] md:w-[calc(33.333%-0.66rem)] ${ratings.subjects!.length > 3 ? 'lg:w-[calc(20%-0.8rem)]' : ''} p-3 bg-blue-50/50 border border-stone-200 rounded-xl relative space-y-3 snap-start`}>
+                    {ratings.subjects!.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSubject(index)}
+                        className="absolute top-2 right-2 text-rose-500 hover:text-rose-700 bg-white shadow-sm p-1 rounded-full transition-colors z-10"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    
+                    <div className="mb-2 bg-blue-100/50 -mt-3 -mx-3 p-3 rounded-t-xl border-b border-blue-100">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Mata Pelajaran..."
+                        value={subject.mataPelajaran}
+                        onChange={(e) => handleSubjectChange(index, 'mataPelajaran', e.target.value)}
+                        className="w-full font-bold text-center bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:font-normal placeholder:text-stone-400"
+                      />
+                    </div>
+
+                    {[
+                      { 
+                        key: 'pemahamanMateri', 
+                        label: 'Pemahaman Materi', 
+                        options: ['Sangat Baik', 'Baik', 'Cukup', 'Perlu Bimbingan'] 
+                      },
+                      { 
+                        key: 'kemampuanSoal', 
+                        label: 'Kemampuan Soal', 
+                        options: ['Tepat dan Cepat', 'Tepat namun Masih Membutuhkan Waktu', 'Cukup Tepat', 'Masih Perlu Latihan'] 
+                      },
+                      { 
+                        key: 'keaktifan', 
+                        label: 'Keaktifan', 
+                        options: ['Sangat Aktif', 'Aktif', 'Cukup Aktif', 'Kurang Aktif'] 
+                      },
+                      { 
+                        key: 'kemandirian', 
+                        label: 'Kemandirian', 
+                        options: ['Sangat Mandiri', 'Mandiri', 'Kadang Masih Dibantu', 'Masih Memerlukan Pendampingan'] 
+                      },
+                      { 
+                        key: 'interaksi', 
+                        label: 'Interaksi', 
+                        options: ['Sangat Baik', 'Baik', 'Cukup', 'Perlu Pendampingan'] 
+                      },
+                      { 
+                        key: 'sikap', 
+                        label: 'Sikap', 
+                        options: ['Sangat Disiplin', 'Disiplin', 'Cukup Disiplin', 'Perlu Diingatkan'] 
+                      },
+                      { 
+                        key: 'keterampilanCatat', 
+                        label: 'Mencatat', 
+                        options: ['Cepat, Rapi, dan Lengkap', 'Rapi dan Lengkap', 'Cukup Lengkap, Masih Perlu Meningkatkan Kecepatan', 'Masih Memerlukan Pendampingan dalam Mencatat'] 
+                      },
+                    ].map((field) => (
+                      <div key={field.key} className="space-y-1.5 bg-white p-2 rounded-lg border border-stone-100">
+                        <label className="block text-[10px] font-bold text-stone-600 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-stone-400"></span> {field.label}
+                        </label>
+                        <div className="grid grid-cols-4 gap-1">
+                          {(['SB', 'B', 'C', 'PB']).map((abbr, i) => {
+                            const opt = field.options[i];
+                            const isSelected = subject[field.key as keyof typeof subject] === opt;
+                            return (
+                              <button
+                                type="button"
+                                key={abbr}
+                                onClick={() => handleSubjectChange(index, field.key as keyof typeof subject, opt)}
+                                className={`py-1 rounded text-[10px] font-bold transition-all border text-center cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-yellow-400 text-yellow-900 border-yellow-500 shadow-sm'
+                                    : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50'
+                                }`}
+                                title={opt}
+                              >
+                                {abbr}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ))}
               </div>
             </div>
-
-            {/* 2. Kemampuan Mengerjakan Soal */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-stone-800">
-                2. Kemampuan Mengerjakan Soal *
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {(
-                  [
-                    'Tepat dan Cepat',
-                    'Tepat namun Masih Membutuhkan Waktu',
-                    'Cukup Tepat',
-                    'Masih Perlu Latihan',
-                  ] as const
-                ).map((opt) => (
-                  <button
-                    type="button"
-                    key={opt}
-                    onClick={() => setRatings({ ...ratings, kemampuanSoal: opt })}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all border text-left cursor-pointer ${
-                      ratings.kemampuanSoal === opt
-                        ? 'bg-teal-200 text-teal-900 border-teal-300'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    • {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 3. Keaktifan Saat Belajar */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-stone-800">
-                3. Keaktifan Saat Belajar *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(['Sangat Aktif', 'Aktif', 'Cukup Aktif', 'Kurang Aktif'] as const).map((opt) => (
-                  <button
-                    type="button"
-                    key={opt}
-                    onClick={() => setRatings({ ...ratings, keaktifan: opt })}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer ${
-                      ratings.keaktifan === opt
-                        ? 'bg-teal-200 text-teal-900 border-teal-300'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 4. Kemandirian Belajar */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-stone-800">
-                4. Kemandirian Belajar *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(['Sangat Mandiri', 'Mandiri', 'Kadang Masih Dibantu', 'Masih Memerlukan Pendampingan'] as const).map((opt) => (
-                  <button
-                    type="button"
-                    key={opt}
-                    onClick={() => setRatings({ ...ratings, kemandirian: opt })}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer ${
-                      ratings.kemandirian === opt
-                        ? 'bg-teal-200 text-teal-900 border-teal-300'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 5. Interaksi dengan Tentor dan Teman */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-stone-800">
-                5. Interaksi dengan Tentor dan Teman *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(['Sangat Baik', 'Baik', 'Cukup', 'Perlu Pendampingan'] as const).map((opt) => (
-                  <button
-                    type="button"
-                    key={opt}
-                    onClick={() => setRatings({ ...ratings, interaksi: opt })}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer ${
-                      ratings.interaksi === opt
-                        ? 'bg-teal-200 text-teal-900 border-teal-300'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 6. Sikap Selama Pembelajaran */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-stone-800">
-                6. Sikap Selama Pembelajaran *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(['Sangat Disiplin', 'Disiplin', 'Cukup Disiplin', 'Perlu Diingatkan'] as const).map((opt) => (
-                  <button
-                    type="button"
-                    key={opt}
-                    onClick={() => setRatings({ ...ratings, sikap: opt })}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer ${
-                      ratings.sikap === opt
-                        ? 'bg-teal-200 text-teal-900 border-teal-300'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 7. Keterampilan Mencatat Materi */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-stone-800">
-                7. Keterampilan Mencatat Materi *
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {(
-                  [
-                    'Cepat, Rapi, dan Lengkap',
-                    'Rapi dan Lengkap',
-                    'Cukup Lengkap, Masih Perlu Meningkatkan Kecepatan',
-                    'Masih Memerlukan Pendampingan dalam Mencatat',
-                  ] as const
-                ).map((opt) => (
-                  <button
-                    type="button"
-                    key={opt}
-                    onClick={() => setRatings({ ...ratings, keterampilanCatat: opt })}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all border text-left cursor-pointer ${
-                      ratings.keterampilanCatat === opt
-                        ? 'bg-teal-200 text-teal-900 border-teal-300'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    • {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-
           </div>
 
-          {/* SECTION C: Target Belajar Minggu Berikutnya */}
+          {/* SECTION C: Target Belajar Bulan Berikutnya */}
           <div className="space-y-2">
-            <h4 className="font-bold text-stone-800 text-sm uppercase tracking-wider flex items-center gap-2 border-b border-stone-200 pb-2">
-              <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs border border-teal-200">C</span>
-              Target Belajar Minggu Berikutnya
+            <h4 className="font-bold text-stone-800 text-sm uppercase tracking-wider flex items-center justify-between border-b border-stone-200 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs border border-teal-200">C</span>
+                Target Belajar Bulan Berikutnya
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSaveTemplate('target', targetBerikutnya)}
+                disabled={!targetBerikutnya.trim()}
+                className="text-[10px] sm:text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+              >
+                <Save className="w-3.5 h-3.5" /> Jadikan Template
+              </button>
             </h4>
+            
+            {targetTemplates.length > 0 && (
+              <div className="flex flex-wrap gap-2 pb-1">
+                {targetTemplates.map((template, idx) => (
+                  <div key={idx} className="flex items-center bg-stone-100 border border-stone-200 rounded-lg group">
+                    <button
+                      type="button"
+                      onClick={() => setTargetBerikutnya(template)}
+                      className="px-3 py-1.5 text-xs text-stone-700 hover:text-stone-900 text-left truncate max-w-[200px] sm:max-w-[300px]"
+                      title={template}
+                    >
+                      {template}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTemplate('target', idx)}
+                      className="p-1.5 text-stone-400 hover:text-rose-500 hover:bg-rose-50 rounded-r-lg border-l border-stone-200 transition-colors"
+                      title="Hapus template"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <textarea
               rows={3}
               value={targetBerikutnya}
@@ -552,16 +585,52 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
               className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 placeholder:text-stone-400"
             />
             <p className="text-[11px] text-stone-500 italic">
-              Hint: Tuliskan capaian materi/keterampilan spesifik yang akan dilatih di minggu depan.
+              Hint: Tuliskan capaian materi/keterampilan spesifik yang akan dilatih di bulan depan.
             </p>
           </div>
 
           {/* SECTION D: Saran Tentor */}
           <div className="space-y-2">
-            <h4 className="font-bold text-stone-800 text-sm uppercase tracking-wider flex items-center gap-2 border-b border-stone-200 pb-2">
-              <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs border border-teal-200">D</span>
-              Saran Tentor untuk Orang Tua
+            <h4 className="font-bold text-stone-800 text-sm uppercase tracking-wider flex items-center justify-between border-b border-stone-200 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs border border-teal-200">D</span>
+                Saran Tentor untuk Orang Tua
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSaveTemplate('saran', saranTentor)}
+                disabled={!saranTentor.trim()}
+                className="text-[10px] sm:text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+              >
+                <Save className="w-3.5 h-3.5" /> Jadikan Template
+              </button>
             </h4>
+            
+            {saranTemplates.length > 0 && (
+              <div className="flex flex-wrap gap-2 pb-1">
+                {saranTemplates.map((template, idx) => (
+                  <div key={idx} className="flex items-center bg-stone-100 border border-stone-200 rounded-lg group">
+                    <button
+                      type="button"
+                      onClick={() => setSaranTentor(template)}
+                      className="px-3 py-1.5 text-xs text-stone-700 hover:text-stone-900 text-left truncate max-w-[200px] sm:max-w-[300px]"
+                      title={template}
+                    >
+                      {template}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTemplate('saran', idx)}
+                      className="p-1.5 text-stone-400 hover:text-rose-500 hover:bg-rose-50 rounded-r-lg border-l border-stone-200 transition-colors"
+                      title="Hapus template"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <textarea
               rows={3}
               value={saranTentor}
@@ -605,7 +674,7 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
               <div className="p-3 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 mt-2">
                 <div className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
                   <Image className="w-4 h-4 text-stone-500" />
-                  Foto dokumentasi yang telah Anda unggah di minggu ini:
+                  Foto dokumentasi yang telah Anda unggah di bulan ini:
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {suggestedPhotos.map((url, idx) => (

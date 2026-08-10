@@ -193,6 +193,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const student = studentsData.find((s: any) => s.id === r.student_id);
             const tentor = tentorsData.find((t: any) => t.id === r.tentor_id);
             
+            let parsedSubjects = undefined;
+            try {
+              if (r.rating_pemahaman && r.rating_pemahaman.startsWith('[')) {
+                parsedSubjects = JSON.parse(r.rating_pemahaman);
+              }
+            } catch(e) {}
+
             return {
               id: r.id,
               studentId: r.student_id,
@@ -211,7 +218,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               dokumentasiFoto: r.dokumentasi_foto,
               createdDate: r.created_at,
               ratings: {
-                pemahamanMateri: r.rating_pemahaman,
+                subjects: parsedSubjects,
+                pemahamanMateri: parsedSubjects ? 'Sangat Baik' : r.rating_pemahaman,
                 kemampuanSoal: r.rating_ketelitian,
                 keaktifan: r.rating_keaktifan,
                 sikap: r.rating_sikap,
@@ -577,7 +585,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       target_berikutnya: reportData.targetBerikutnya,
       saran_tentor: reportData.saranTentor,
       dokumentasi_foto: reportData.dokumentasiFoto,
-      rating_pemahaman: reportData.ratings.pemahamanMateri,
+      rating_pemahaman: reportData.ratings.subjects && reportData.ratings.subjects.length > 0 ? JSON.stringify(reportData.ratings.subjects) : reportData.ratings.pemahamanMateri,
       rating_ketelitian: reportData.ratings.kemampuanSoal,
       rating_keaktifan: reportData.ratings.keaktifan,
       rating_sikap: reportData.ratings.sikap,
@@ -614,7 +622,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       target_berikutnya: updatedReport.targetBerikutnya,
       saran_tentor: updatedReport.saranTentor,
       dokumentasi_foto: updatedReport.dokumentasiFoto,
-      rating_pemahaman: updatedReport.ratings.pemahamanMateri,
+      rating_pemahaman: updatedReport.ratings.subjects && updatedReport.ratings.subjects.length > 0 ? JSON.stringify(updatedReport.ratings.subjects) : updatedReport.ratings.pemahamanMateri,
       rating_ketelitian: updatedReport.ratings.kemampuanSoal,
       rating_keaktifan: updatedReport.ratings.keaktifan,
       rating_sikap: updatedReport.ratings.sikap,

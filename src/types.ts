@@ -30,15 +30,31 @@ export interface Tentor {
   bio: string;
 }
 
-// 7 Aspect Ratings for Weekly Report
+// Subject specific ratings
+export interface SubjectRating {
+  mataPelajaran: string;
+  pemahamanMateri: 'Sangat Baik' | 'Baik' | 'Cukup' | 'Perlu Bimbingan' | '';
+  kemampuanSoal: 'Tepat dan Cepat' | 'Tepat namun Masih Membutuhkan Waktu' | 'Cukup Tepat' | 'Masih Perlu Latihan' | '';
+  keaktifan?: 'Sangat Aktif' | 'Aktif' | 'Cukup Aktif' | 'Kurang Aktif' | '';
+  kemandirian?: 'Sangat Mandiri' | 'Mandiri' | 'Kadang Masih Dibantu' | 'Masih Memerlukan Pendampingan' | '';
+  interaksi?: 'Sangat Baik' | 'Baik' | 'Cukup' | 'Perlu Pendampingan' | '';
+  sikap?: 'Sangat Disiplin' | 'Disiplin' | 'Cukup Disiplin' | 'Perlu Diingatkan' | '';
+  keterampilanCatat?: 'Cepat, Rapi, dan Lengkap' | 'Rapi dan Lengkap' | 'Cukup Lengkap, Masih Perlu Meningkatkan Kecepatan' | 'Masih Memerlukan Pendampingan dalam Mencatat' | '';
+}
+
+// Aspect Ratings for Monthly Report
 export interface WeeklyRatings {
-  pemahamanMateri: 'Sangat Baik' | 'Baik' | 'Cukup' | 'Perlu Bimbingan';
-  kemampuanSoal: 'Tepat dan Cepat' | 'Tepat namun Masih Membutuhkan Waktu' | 'Cukup Tepat' | 'Masih Perlu Latihan';
-  keaktifan: 'Sangat Aktif' | 'Aktif' | 'Cukup Aktif' | 'Kurang Aktif';
-  kemandirian: 'Sangat Mandiri' | 'Mandiri' | 'Kadang Masih Dibantu' | 'Masih Memerlukan Pendampingan';
-  interaksi: 'Sangat Baik' | 'Baik' | 'Cukup' | 'Perlu Pendampingan';
-  sikap: 'Sangat Disiplin' | 'Disiplin' | 'Cukup Disiplin' | 'Perlu Diingatkan';
-  keterampilanCatat: 'Cepat, Rapi, dan Lengkap' | 'Rapi dan Lengkap' | 'Cukup Lengkap, Masih Perlu Meningkatkan Kecepatan' | 'Masih Memerlukan Pendampingan dalam Mencatat';
+  subjects?: SubjectRating[]; // New dynamic subjects
+  
+  // Legacy or global
+  pemahamanMateri?: 'Sangat Baik' | 'Baik' | 'Cukup' | 'Perlu Bimbingan';
+  kemampuanSoal?: 'Tepat dan Cepat' | 'Tepat namun Masih Membutuhkan Waktu' | 'Cukup Tepat' | 'Masih Perlu Latihan';
+  
+  keaktifan?: 'Sangat Aktif' | 'Aktif' | 'Cukup Aktif' | 'Kurang Aktif';
+  kemandirian?: 'Sangat Mandiri' | 'Mandiri' | 'Kadang Masih Dibantu' | 'Masih Memerlukan Pendampingan';
+  interaksi?: 'Sangat Baik' | 'Baik' | 'Cukup' | 'Perlu Pendampingan';
+  sikap?: 'Sangat Disiplin' | 'Disiplin' | 'Cukup Disiplin' | 'Perlu Diingatkan';
+  keterampilanCatat?: 'Cepat, Rapi, dan Lengkap' | 'Rapi dan Lengkap' | 'Cukup Lengkap, Masih Perlu Meningkatkan Kecepatan' | 'Masih Memerlukan Pendampingan dalam Mencatat';
 }
 
 export interface WeeklyReport {

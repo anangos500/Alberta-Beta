@@ -11,13 +11,12 @@ export const downloadReportsExcel = async (reports: WeeklyReport[], filename: st
     'Tentor': r.tentorNama,
     'Mata Pelajaran': r.mataPelajaran,
     'Materi': r.materi,
-    'Pemahaman': r.ratings.pemahamanMateri,
-    'Kemampuan Soal': r.ratings.kemampuanSoal,
-    'Keaktifan': r.ratings.keaktifan,
-    'Kemandirian': r.ratings.kemandirian,
-    'Interaksi': r.ratings.interaksi,
-    'Sikap': r.ratings.sikap,
-    'Keterampilan Catat': r.ratings.keterampilanCatat,
+    'Pemahaman': r.ratings.subjects && r.ratings.subjects.length > 0 
+      ? r.ratings.subjects.map(s => `${s.mataPelajaran}: ${s.pemahamanMateri}`).join(' | ') 
+      : r.ratings.pemahamanMateri,
+    'Kemampuan Soal': r.ratings.subjects && r.ratings.subjects.length > 0
+      ? r.ratings.subjects.map(s => `${s.mataPelajaran}: ${s.kemampuanSoal}`).join(' | ')
+      : r.ratings.kemampuanSoal,
     'Target Berikutnya': r.targetBerikutnya,
     'Saran Tentor': r.saranTentor
   }));
@@ -35,11 +34,6 @@ export const downloadReportsExcel = async (reports: WeeklyReport[], filename: st
     { wch: 30 }, // Materi
     { wch: 15 }, // Pemahaman
     { wch: 15 }, // Kemampuan
-    { wch: 15 }, // Keaktifan
-    { wch: 15 }, // Kemandirian
-    { wch: 15 }, // Interaksi
-    { wch: 15 }, // Sikap
-    { wch: 15 }, // Keterampilan
     { wch: 30 }, // Target
     { wch: 35 }  // Saran
   ];

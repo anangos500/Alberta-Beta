@@ -71,7 +71,7 @@ export const PdfReportView: React.FC<Props> = ({ report, onClose }) => {
 
             <div className="text-right">
               <div className="text-xs font-bold text-stone-500 uppercase">
-                LAPORAN MINGGUAN
+                LAPORAN BULANAN
               </div>
               <div className="text-lg font-black text-teal-800">
                 Minggu ke-{report.mingguKe}
@@ -94,12 +94,8 @@ export const PdfReportView: React.FC<Props> = ({ report, onClose }) => {
               <div className="font-bold text-stone-900">{report.tentorNama}</div>
             </div>
             <div>
-              <span className="text-stone-500 font-medium">Hari / Tanggal Pembelajaran:</span>
-              <div className="font-bold text-stone-900">{report.hari}, {report.tanggalPembelajaran}</div>
-            </div>
-            <div className="col-span-2">
-              <span className="text-stone-500 font-medium">Mata Pelajaran & Materi:</span>
-              <div className="font-bold text-stone-900">{report.mataPelajaran} — {report.materi}</div>
+              <span className="text-stone-500 font-medium">Bulan:</span>
+              <div className="font-bold text-stone-900">{new Date(report.tanggalPembelajaran).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</div>
             </div>
           </div>
 
@@ -118,41 +114,37 @@ export const PdfReportView: React.FC<Props> = ({ report, onClose }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">
-                <tr>
-                  <td className="border border-stone-200 p-2 text-center font-bold">1</td>
-                  <td className="border border-stone-200 p-2 font-medium">Pemahaman Materi</td>
-                  <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.pemahamanMateri}</td>
-                </tr>
-                <tr>
-                  <td className="border border-stone-200 p-2 text-center font-bold">2</td>
-                  <td className="border border-stone-200 p-2 font-medium">Kemampuan Mengerjakan Soal</td>
-                  <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.kemampuanSoal}</td>
-                </tr>
-                <tr>
-                  <td className="border border-stone-200 p-2 text-center font-bold">3</td>
-                  <td className="border border-stone-200 p-2 font-medium">Keaktifan Saat Belajar</td>
-                  <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.keaktifan}</td>
-                </tr>
-                <tr>
-                  <td className="border border-stone-200 p-2 text-center font-bold">4</td>
-                  <td className="border border-stone-200 p-2 font-medium">Kemandirian Belajar</td>
-                  <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.kemandirian}</td>
-                </tr>
-                <tr>
-                  <td className="border border-stone-200 p-2 text-center font-bold">5</td>
-                  <td className="border border-stone-200 p-2 font-medium">Interaksi dengan Tentor & Teman</td>
-                  <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.interaksi}</td>
-                </tr>
-                <tr>
-                  <td className="border border-stone-200 p-2 text-center font-bold">6</td>
-                  <td className="border border-stone-200 p-2 font-medium">Sikap Selama Pembelajaran</td>
-                  <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.sikap}</td>
-                </tr>
-                <tr>
-                  <td className="border border-stone-200 p-2 text-center font-bold">7</td>
-                  <td className="border border-stone-200 p-2 font-medium">Keterampilan Mencatat Materi</td>
-                  <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.keterampilanCatat}</td>
-                </tr>
+                {report.ratings.subjects && report.ratings.subjects.length > 0 ? (
+                  report.ratings.subjects.map((subject, idx) => (
+                    <React.Fragment key={idx}>
+                      <tr>
+                        <td className="border border-stone-200 p-2 text-center font-bold bg-stone-50" rowSpan={3}>{idx + 1}</td>
+                        <td className="border border-stone-200 p-2 font-bold bg-stone-50 text-teal-800" colSpan={2}>{subject.mataPelajaran || 'Mata Pelajaran'}</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-stone-200 p-2 font-medium pl-4">Pemahaman Konsep</td>
+                        <td className="border border-stone-200 p-2 font-bold text-stone-900">{subject.pemahamanMateri}</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-stone-200 p-2 font-medium pl-4">Kemampuan Mengerjakan Soal</td>
+                        <td className="border border-stone-200 p-2 font-bold text-stone-900">{subject.kemampuanSoal}</td>
+                      </tr>
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <>
+                    <tr>
+                      <td className="border border-stone-200 p-2 text-center font-bold">1</td>
+                      <td className="border border-stone-200 p-2 font-medium">Pemahaman Materi</td>
+                      <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.pemahamanMateri}</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-stone-200 p-2 text-center font-bold">2</td>
+                      <td className="border border-stone-200 p-2 font-medium">Kemampuan Mengerjakan Soal</td>
+                      <td className="border border-stone-200 p-2 font-bold text-stone-900">{report.ratings.kemampuanSoal}</td>
+                    </tr>
+                  </>
+                )}
               </tbody>
             </table>
           </div>
@@ -201,7 +193,7 @@ export const PdfReportView: React.FC<Props> = ({ report, onClose }) => {
               <p className="font-bold text-stone-900 underline">{report.tentorNama}</p>
             </div>
             <div>
-              <p className="text-stone-500 mb-12">Bondowoso, {report.tanggalPembelajaran}<br />Orang Tua / Wali Murid,</p>
+              <p className="text-stone-500 mb-12">Bondowoso, {new Date(report.tanggalPembelajaran).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}<br />Orang Tua / Wali Murid,</p>
               <p className="font-bold text-stone-900 underline">( ............................................ )</p>
             </div>
           </div>

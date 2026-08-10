@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <span className="font-extrabold text-2xl tracking-tight text-white">
-                  Alberta.
+                  Alberta
                 </span>
               </div>
             </div>
@@ -90,7 +90,7 @@ export const Footer: React.FC = () => {
               Portal Albertian
             </h4>
             <p className="text-sm">
-              Akses cepat laporan perkembangan belajar mingguan untuk Admin, Tentor, dan Orang Tua.
+              Akses cepat laporan perkembangan belajar bulanan untuk Admin, Tentor, dan Orang Tua.
             </p>
 
             <div className="space-y-3 pt-2">

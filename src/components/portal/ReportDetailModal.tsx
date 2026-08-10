@@ -79,73 +79,58 @@ export const ReportDetailModal: React.FC<Props> = ({ report, onClose, hidePrintO
                 <span className="font-bold text-stone-800">{report.tentorNama}</span>
               </div>
               <div>
-                <span className="text-stone-500 font-medium block">Hari & Tanggal:</span>
-                <span className="font-bold text-stone-800">{report.hari}, {report.tanggalPembelajaran}</span>
-              </div>
-              <div className="col-span-2 sm:col-span-2">
-                <span className="text-stone-500 font-medium block">Materi Pelajaran:</span>
-                <span className="font-bold text-stone-800">{report.mataPelajaran} — {report.materi}</span>
+                <span className="text-stone-500 font-medium block">Bulan:</span>
+                <span className="font-bold text-stone-800">{new Date(report.tanggalPembelajaran).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
               </div>
             </div>
 
-            {/* 7 Aspect Ratings Table Cards */}
+            {/* Aspect Ratings Table Cards */}
             <div className="space-y-3">
               <h4 className="font-bold text-stone-800 text-sm uppercase tracking-wider flex items-center gap-2 border-b border-stone-200 pb-2">
                 <Award className="w-4 h-4 text-teal-600" />
-                Penilaian Perkembangan Belajar (7 Aspek)
+                Penilaian Perkembangan Belajar
               </h4>
 
-              <div className="grid grid-cols-1 gap-2 text-xs">
-                
-                <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
-                  <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">1. Pemahaman Materi</span>
-                  <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.pemahamanMateri)}`}>
-                    {report.ratings.pemahamanMateri}
-                  </span>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                {report.ratings.subjects && report.ratings.subjects.length > 0 ? (
+                  report.ratings.subjects.map((subject, idx) => (
+                    <div key={idx} className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 flex flex-col gap-2.5">
+                      <span className="font-extrabold text-teal-800 text-sm uppercase tracking-wider border-b border-teal-100 pb-1">{subject.mataPelajaran || 'Mata Pelajaran'}</span>
+                      {[
+                        { label: 'Pemahaman', value: subject.pemahamanMateri },
+                        { label: 'Kemampuan Soal', value: subject.kemampuanSoal },
+                        { label: 'Keaktifan', value: subject.keaktifan },
+                        { label: 'Kemandirian', value: subject.kemandirian },
+                        { label: 'Interaksi', value: subject.interaksi },
+                        { label: 'Sikap', value: subject.sikap },
+                        { label: 'Mencatat', value: subject.keterampilanCatat },
+                      ].map((item, i) => item.value ? (
+                        <div key={i} className="flex flex-row items-center justify-between gap-3 pl-2 border-l-2 border-stone-200">
+                          <span className="font-bold text-stone-600 text-[11px] uppercase">{item.label}</span>
+                          <span className={`px-2 py-0.5 rounded-md font-extrabold border text-[10px] inline-block text-center shrink-0 ${getRatingBadgeColor(item.value)}`}>
+                            {item.value}
+                          </span>
+                        </div>
+                      ) : null)}
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
+                      <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">Pemahaman Materi</span>
+                      <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.pemahamanMateri)}`}>
+                        {report.ratings.pemahamanMateri}
+                      </span>
+                    </div>
 
-                <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
-                  <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">2. Kemampuan Soal</span>
-                  <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.kemampuanSoal)}`}>
-                    {report.ratings.kemampuanSoal}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
-                  <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">3. Keaktifan Belajar</span>
-                  <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.keaktifan)}`}>
-                    {report.ratings.keaktifan}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
-                  <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">4. Kemandirian Belajar</span>
-                  <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.kemandirian)}`}>
-                    {report.ratings.kemandirian}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
-                  <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">5. Interaksi dengan Tentor & Teman</span>
-                  <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.interaksi)}`}>
-                    {report.ratings.interaksi}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
-                  <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">6. Sikap Pembelajaran</span>
-                  <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.sikap)}`}>
-                    {report.ratings.sikap}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
-                  <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">7. Keterampilan Mencatat</span>
-                  <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.keterampilanCatat)}`}>
-                    {report.ratings.keterampilanCatat}
-                  </span>
-                </div>
-
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex flex-row items-center justify-between gap-3">
+                      <span className="font-medium text-stone-700 text-xs sm:text-sm leading-tight">Kemampuan Soal</span>
+                      <span className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-extrabold border text-[10px] sm:text-xs inline-block text-center shrink-0 max-w-[120px] sm:max-w-none ${getRatingBadgeColor(report.ratings.kemampuanSoal)}`}>
+                        {report.ratings.kemampuanSoal}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

@@ -263,7 +263,7 @@ export const OrangTuaDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
             <div>
               <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Laporan Mingguan
+                Laporan Bulanan
               </h3>
               {activeChild && (
                 <p className="text-sm text-slate-500 mt-1">
@@ -299,7 +299,7 @@ export const OrangTuaDashboard: React.FC = () => {
                 <BookOpen className="w-8 h-8 text-slate-300" />
               </div>
               <h4 className="text-base font-extrabold text-slate-700">Belum ada laporan belajar minggu ini.</h4>
-              <p className="text-sm text-slate-500 max-w-md mx-auto">Laporan mingguan akan otomatis muncul setelah diselesaikan oleh Tentor Pendamping.</p>
+              <p className="text-sm text-slate-500 max-w-md mx-auto">Laporan Bulanan akan otomatis muncul setelah diselesaikan oleh Tentor Pendamping.</p>
             </div>
           ) : (
             childReports.map((report) => (
@@ -321,7 +321,7 @@ export const OrangTuaDashboard: React.FC = () => {
                         </h4>
                         <p className="text-[11px] sm:text-xs font-semibold text-slate-500 flex items-center gap-1.5 mt-1">
                           <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">{report.hari}, {report.tanggalPembelajaran}</span>
+                          <span className="truncate">{new Date(report.tanggalPembelajaran).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
                         </p>
                       </div>
                     </div>
@@ -351,43 +351,52 @@ export const OrangTuaDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 7 Ratings Grid */}
+                {/* Ratings Grid */}
                 <div className="space-y-3">
                   <h5 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
                     <Award className="w-4 h-4 text-emerald-500" />
-                    Ringkasan Penilaian 7 Aspek:
+                    Ringkasan Penilaian:
                   </h5>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    
-                    <div className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-xs">
-                      <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pemahaman:</div>
-                      <div className={`font-bold mt-1 text-xs ${getRatingBadgeColor(report.ratings.pemahamanMateri)} px-2.5 py-1 rounded-lg inline-block border`}>
-                        {report.ratings.pemahamanMateri}
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                    {report.ratings.subjects && report.ratings.subjects.length > 0 ? (
+                      report.ratings.subjects.map((subject, idx) => (
+                        <div key={idx} className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-xs space-y-2">
+                          <div className="text-[11px] font-extrabold text-emerald-700 tracking-wide border-b border-slate-100 pb-1.5">{subject.mataPelajaran || 'Mapel'}</div>
+                          
+                          <div className="flex flex-col gap-1.5">
+                             <div className="flex items-center justify-between gap-2">
+                               <span className="text-[10px] font-bold text-slate-500 uppercase">Pemahaman</span>
+                               <span className={`font-bold text-[10px] ${getRatingBadgeColor(subject.pemahamanMateri)} px-2 py-0.5 rounded-md border`}>
+                                 {subject.pemahamanMateri}
+                               </span>
+                             </div>
+                             <div className="flex items-center justify-between gap-2">
+                               <span className="text-[10px] font-bold text-slate-500 uppercase">Pengerjaan</span>
+                               <span className={`font-bold text-[10px] ${getRatingBadgeColor(subject.kemampuanSoal)} px-2 py-0.5 rounded-md border`}>
+                                 {subject.kemampuanSoal}
+                               </span>
+                             </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-xs">
+                          <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pemahaman:</div>
+                          <div className={`font-bold mt-1 text-xs ${getRatingBadgeColor(report.ratings.pemahamanMateri)} px-2.5 py-1 rounded-lg inline-block border`}>
+                            {report.ratings.pemahamanMateri}
+                          </div>
+                        </div>
 
-                    <div className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-xs">
-                      <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pengerjaan:</div>
-                      <div className={`font-bold mt-1 text-xs ${getRatingBadgeColor(report.ratings.kemampuanSoal)} px-2.5 py-1 rounded-lg inline-block border`}>
-                        {report.ratings.kemampuanSoal}
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-xs">
-                      <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Keaktifan:</div>
-                      <div className={`font-bold mt-1 text-xs ${getRatingBadgeColor(report.ratings.keaktifan)} px-2.5 py-1 rounded-lg inline-block border`}>
-                        {report.ratings.keaktifan}
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-xs">
-                      <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Sikap:</div>
-                      <div className={`font-bold mt-1 text-xs ${getRatingBadgeColor(report.ratings.sikap)} px-2.5 py-1 rounded-lg inline-block border`}>
-                        {report.ratings.sikap}
-                      </div>
-                    </div>
-
+                        <div className="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-xs">
+                          <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pengerjaan:</div>
+                          <div className={`font-bold mt-1 text-xs ${getRatingBadgeColor(report.ratings.kemampuanSoal)} px-2.5 py-1 rounded-lg inline-block border`}>
+                            {report.ratings.kemampuanSoal}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -529,7 +538,7 @@ export const OrangTuaDashboard: React.FC = () => {
               <p>
                 <strong className="text-slate-900 font-extrabold">Catatan Akademik Utama:</strong><br />
                 {childReports.length > 0 
-                  ? `Ananda ${activeChild?.nama} telah menyelesaikan ${childReports.length} sesi pembelajaran yang tercatat di portal ini. Terus pantau laporan mingguan untuk melihat perkembangan secara detail.`
+                  ? `Ananda ${activeChild?.nama} telah menyelesaikan ${childReports.length} sesi pembelajaran yang tercatat di portal ini. Terus pantau laporan bulanan untuk melihat perkembangan secara detail.`
                   : `Belum ada catatan akademik untuk ananda ${activeChild?.nama} bulan ini.`}
               </p>
               <p>

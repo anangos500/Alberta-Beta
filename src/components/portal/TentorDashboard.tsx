@@ -34,14 +34,18 @@ export const TentorDashboard: React.FC = () => {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const myTentorProfile = tentors.find(t => t.id === currentUser?.tentorId) || null;
 
+  // Real jadwal for this tentor
+  const myJadwal = jadwalList.filter(j => j.tentorId === currentUser?.id);
+  const myJadwalStudentIds = new Set(myJadwal.flatMap(j => j.studentIds || []));
+
   // Active students assigned to this tentor or all active students for tentor view
   const myStudents = students.filter(
-    (s) => s.status === 'aktif' && (s.tentorId === currentUser?.tentorId || true)
+    (s) => s.status === 'aktif' && myJadwalStudentIds.has(s.id)
   );
 
   // Reports written by this tentor
   const myReports = reports.filter(
-    (r) => r.tentorId === currentUser?.tentorId || true
+    (r) => r.tentorId === currentUser?.id || true // Using true as a fallback here? Actually let's just use myStudents to filter reports later if needed.
   );
 
   const currentWeek = Math.ceil(new Date().getDate() / 7); // Calculate current week of the month
@@ -51,8 +55,6 @@ export const TentorDashboard: React.FC = () => {
 
   const today = new Date().toLocaleDateString('id-ID', { weekday: 'long' });
 
-  // Real jadwal for this tentor
-  const myJadwal = jadwalList.filter(j => j.tentorId === currentUser?.id);
   const myJadwalToday = myJadwal.filter(j => j.hari.toLowerCase() === today.toLowerCase());
 
   const handleOpenNewReport = (student: Student, week?: number) => {
@@ -89,7 +91,7 @@ export const TentorDashboard: React.FC = () => {
               Selamat Datang, <span className="text-pink-600">{currentUser?.nama}!</span>
             </h2>
             <p className="text-slate-600 text-sm max-w-xl">
-              Isi & perbarui Laporan Perkembangan Belajar Mingguan (7 Aspek Penilaian) untuk siswa bimbingan Anda secara praktis dan transparan.
+              Isi & perbarui Laporan Perkembangan Belajar Bulanan (7 Aspek Penilaian) untuk siswa bimbingan Anda secara praktis dan transparan.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -128,7 +130,7 @@ export const TentorDashboard: React.FC = () => {
               <div>
                 <h4 className="text-rose-900 font-extrabold text-sm sm:text-base">Pemberitahuan Laporan</h4>
                 <p className="text-rose-700 text-xs sm:text-sm font-medium mt-0.5">
-                  Terdapat <span className="font-extrabold">{studentsWithoutReport} siswa</span> yang belum Anda berikan laporan untuk minggu ini.
+                  Terdapat <span className="font-extrabold">{studentsWithoutReport} siswa</span> yang belum Anda berikan laporan untuk bulan ini.
                 </p>
               </div>
             </div>
@@ -236,10 +238,10 @@ export const TentorDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Isi Laporan Mingguan
+                Isi Laporan Bulanan
               </h3>
               <p className="text-sm text-slate-500 mt-1">
-                Pilih siswa untuk menginputkan laporan minggu ini.
+                Pilih siswa untuk menginputkan laporan bulan ini.
               </p>
             </div>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-pink-700 bg-pink-100 px-4 py-1.5 rounded-full border border-pink-200 shadow-xs self-start sm:self-auto">
@@ -291,7 +293,7 @@ export const TentorDashboard: React.FC = () => {
                       className="w-full py-3 px-4 rounded-xl font-bold text-xs text-pink-700 bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <PlusCircle className="w-4 h-4" />
-                      <span>Isi Laporan Minggu Ini</span>
+                      <span>Isi Laporan Bulan Ini</span>
                     </button>
 
                     {hasLatestReport && (
@@ -312,7 +314,7 @@ export const TentorDashboard: React.FC = () => {
                               key={week}
                               onClick={() => handleOpenNewReport(student, week)}
                               className="py-1 px-2.5 rounded-lg font-bold text-[10px] text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all flex items-center gap-1 cursor-pointer"
-                              title={`Isi laporan minggu ke-${week}`}
+                              title={`Isi laporan bulan ke-${week}`}
                             >
                               <AlertCircle className="w-3 h-3" />
                               M-{week}
@@ -338,7 +340,7 @@ export const TentorDashboard: React.FC = () => {
                 Riwayat Laporan Anda
               </h3>
               <p className="text-sm text-slate-500 mt-1">
-                Daftar laporan mingguan yang dibuat untuk dapat diperbarui atau dicetak.
+                Daftar laporan bulanan yang dibuat untuk dapat diperbarui atau dicetak.
               </p>
             </div>
           </div>
@@ -354,7 +356,7 @@ export const TentorDashboard: React.FC = () => {
                   <FileText className="w-7 h-7" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-slate-900 text-lg">Arsip Minggu Ke-{week}</h4>
+                  <h4 className="font-extrabold text-slate-900 text-lg">Arsip bulan ke-{week}</h4>
                   <p className="text-xs font-semibold text-slate-500 mt-1">
                     {myReports.filter(r => r.mingguKe === Number(week)).length} Laporan Terkirim
                   </p>

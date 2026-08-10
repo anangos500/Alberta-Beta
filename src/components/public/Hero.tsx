@@ -7,7 +7,7 @@ const slides = [
     image: "",
     title: "Raih Prestasi Gemilang Bersama Bimbel Alberta",
     description:
-      "Program bimbingan belajar intensif untuk TK, SD, dan SMP di Bondowoso. Dilengkapi dengan laporan mingguan ke orang tua, pengajar profesional, dan kelas interaktif maksimal 6 siswa per sesi.",
+      "Program bimbingan belajar intensif untuk TK, SD, dan SMP di Bondowoso. Dilengkapi dengan laporan bulanan ke orang tua, pengajar profesional, dan kelas interaktif maksimal 6 siswa per sesi.",
     buttonText: "Daftar Sekarang",
     primary: true,
   },
