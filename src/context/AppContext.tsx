@@ -600,13 +600,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       target_berikutnya: reportData.targetBerikutnya,
       saran_tentor: reportData.saranTentor,
       dokumentasi_foto: reportData.dokumentasiFoto,
-      rating_pemahaman: reportData.ratings.subjects && reportData.ratings.subjects.length > 0 ? JSON.stringify(reportData.ratings.subjects) : reportData.ratings.pemahamanMateri,
-      rating_ketelitian: reportData.ratings.kemampuanSoal,
-      rating_keaktifan: reportData.ratings.keaktifan,
-      rating_sikap: reportData.ratings.sikap,
-      rating_kemandirian: reportData.ratings.kemandirian,
-      rating_interaksi: reportData.ratings.interaksi,
-      rating_keterampilan: reportData.ratings.keterampilanCatat
+      rating_pemahaman: reportData.ratings.subjects && reportData.ratings.subjects.length > 0 ? JSON.stringify(reportData.ratings.subjects) : (reportData.ratings.pemahamanMateri || 'Sangat Baik'),
+      rating_ketelitian: reportData.ratings.kemampuanSoal || 'Tepat dan Cepat',
+      rating_keaktifan: reportData.ratings.keaktifan || 'Sangat Aktif',
+      rating_sikap: reportData.ratings.sikap || 'Sangat Disiplin',
+      rating_kemandirian: reportData.ratings.kemandirian || 'Sangat Mandiri',
+      rating_interaksi: reportData.ratings.interaksi || 'Sangat Baik',
+      rating_keterampilan: reportData.ratings.keterampilanCatat || 'Cepat, Rapi, dan Lengkap'
     };
     const { data, error } = await supabase.from('weekly_reports').insert([dbData]).select();
     if (error) {
@@ -637,13 +637,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       target_berikutnya: updatedReport.targetBerikutnya,
       saran_tentor: updatedReport.saranTentor,
       dokumentasi_foto: updatedReport.dokumentasiFoto,
-      rating_pemahaman: updatedReport.ratings.subjects && updatedReport.ratings.subjects.length > 0 ? JSON.stringify(updatedReport.ratings.subjects) : updatedReport.ratings.pemahamanMateri,
-      rating_ketelitian: updatedReport.ratings.kemampuanSoal,
-      rating_keaktifan: updatedReport.ratings.keaktifan,
-      rating_sikap: updatedReport.ratings.sikap,
-      rating_kemandirian: updatedReport.ratings.kemandirian,
-      rating_interaksi: updatedReport.ratings.interaksi,
-      rating_keterampilan: updatedReport.ratings.keterampilanCatat
+      rating_pemahaman: updatedReport.ratings.subjects && updatedReport.ratings.subjects.length > 0 ? JSON.stringify(updatedReport.ratings.subjects) : (updatedReport.ratings.pemahamanMateri || 'Sangat Baik'),
+      rating_ketelitian: updatedReport.ratings.kemampuanSoal || 'Tepat dan Cepat',
+      rating_keaktifan: updatedReport.ratings.keaktifan || 'Sangat Aktif',
+      rating_sikap: updatedReport.ratings.sikap || 'Sangat Disiplin',
+      rating_kemandirian: updatedReport.ratings.kemandirian || 'Sangat Mandiri',
+      rating_interaksi: updatedReport.ratings.interaksi || 'Sangat Baik',
+      rating_keterampilan: updatedReport.ratings.keterampilanCatat || 'Cepat, Rapi, dan Lengkap'
     };
     const { error } = await supabase.from('weekly_reports').update(dbData).eq('id', updatedReport.id);
     if (error) {
