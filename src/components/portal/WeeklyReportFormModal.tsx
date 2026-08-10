@@ -207,8 +207,38 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
       );
       
       const uniqueMapels = Array.from(new Set(studentJadwals.map(j => j.mataPelajaran))).filter(Boolean);
+      const student = students.find(s => s.id === selectedStudentId);
       
-      if (uniqueMapels.length > 0) {
+      if (student?.jenjang === 'TK') {
+        const tkSubjectsToUse = new Set<string>();
+        if (uniqueMapels.length > 0) {
+          uniqueMapels.forEach(m => {
+            m.split(/[,&]/).forEach(s => {
+              const trimmed = s.trim();
+              if (trimmed) tkSubjectsToUse.add(trimmed);
+            });
+          });
+        }
+        
+        // Fallback jika tidak ada jadwal atau setelah di-split kosong
+        const finalTkMapels = tkSubjectsToUse.size > 0 
+          ? Array.from(tkSubjectsToUse) 
+          : ['Membaca', 'Menulis', 'Berhitung', 'Science', 'English'];
+
+        setRatings(prev => ({
+          ...prev,
+          subjects: finalTkMapels.map(mapel => ({
+            mataPelajaran: mapel,
+            pemahamanMateri: 'Sangat Baik',
+            kemampuanSoal: 'Tepat dan Cepat',
+            keaktifan: 'Sangat Aktif',
+            kemandirian: 'Sangat Mandiri',
+            interaksi: 'Sangat Baik',
+            sikap: 'Sangat Disiplin',
+            keterampilanCatat: 'Cepat, Rapi, dan Lengkap',
+          }))
+        }));
+      } else if (uniqueMapels.length > 0) {
         setRatings(prev => ({
           ...prev,
           subjects: uniqueMapels.map(mapel => ({
@@ -224,7 +254,6 @@ export const WeeklyReportFormModal: React.FC<Props> = ({
         }));
       } else {
         // Fallback jika tidak ada jadwal (misal data lama atau tes)
-        const student = students.find(s => s.id === selectedStudentId);
         setRatings(prev => ({
           ...prev,
           subjects: [{
